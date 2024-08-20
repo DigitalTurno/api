@@ -7,11 +7,11 @@ import (
 
 type UserService interface {
 	CreateUser(user model.User) (model.User, error)
-	FindAll() []model.User
-	FindById(id string) (model.User, error)
+	FindAll() ([]*model.User, error)
+	FindById(id string) (*model.User, error)
 	FindUserByUsername(username string) (model.User, error)
 	Update(user model.User) model.User
-	Delete(userId string) model.User
+	DeleteUser(userId string) (model.User, error)
 }
 
 type userService struct {
@@ -30,11 +30,11 @@ func (s *userService) CreateUser(user model.User) (model.User, error) {
 	return s.repo.CreateUser(user)
 }
 
-func (s *userService) FindAll() []model.User {
+func (s *userService) FindAll() ([]*model.User, error) {
 	return s.repo.FindAll()
 }
 
-func (s *userService) FindById(id string) (model.User, error) {
+func (s *userService) FindById(id string) (*model.User, error) {
 	return s.repo.FindById(id)
 }
 
@@ -42,6 +42,6 @@ func (s *userService) Update(user model.User) model.User {
 	return s.repo.Update(user)
 }
 
-func (s *userService) Delete(userId string) model.User {
+func (s *userService) DeleteUser(userId string) (model.User, error) {
 	return s.repo.Deleted(userId)
 }

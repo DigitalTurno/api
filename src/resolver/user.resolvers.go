@@ -14,7 +14,16 @@ import (
 
 // CreateUser is the resolver for the createUser field.
 func (r *mutationResolver) CreateUser(ctx context.Context, input *model.UserInput) (*model.User, error) {
-	panic(fmt.Errorf("not implemented: CreateUser - createUser"))
+	user := model.User{
+		Username: input.Username,
+		Password: input.Password,
+		Email:    input.Email,
+	}
+	createdUser, err := r.userService.CreateUser(user)
+	if err != nil {
+		return nil, err
+	}
+	return &createdUser, nil
 }
 
 // UpdateUser is the resolver for the updateUser field.
@@ -24,26 +33,21 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, id string, input *mod
 
 // DeleteUser is the resolver for the deleteUser field.
 func (r *mutationResolver) DeleteUser(ctx context.Context, id string) (*model.User, error) {
-	panic(fmt.Errorf("not implemented: DeleteUser - deleteUser"))
-}
-
-// Users is the resolver for the users field.
-func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
-	users := r.userService.FindAll()
-	var result []*model.User
-	for _, user := range users {
-		result = append(result, &user)
-	}
-	return result, nil
-}
-
-// GetUserByID is the resolver for the getUserById field.
-func (r *queryResolver) GetUserByID(ctx context.Context, id string) (*model.User, error) {
-	user, err := r.userService.FindById(id)
+	user, err := r.userService.DeleteUser(id)
 	if err != nil {
 		return nil, err
 	}
 	return &user, nil
+}
+
+// Users is the resolver for the users field.
+func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
+	return r.userService.FindAll()
+}
+
+// GetUserByID is the resolver for the getUserById field.
+func (r *queryResolver) GetUserByID(ctx context.Context, id string) (*model.User, error) {
+	return r.userService.FindById(id)
 }
 
 // Mutation returns generated.MutationResolver implementation.
@@ -54,17 +58,3 @@ func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//     it when you're done.
-//   - You have helper methods in this file. Move them out to keep these resolver files clean.
-func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error) {
-	user, err := r.userService.FindById(id)
-	if err != nil {
-		return nil, err
-	}
-	return &user, nil
-}

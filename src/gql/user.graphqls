@@ -4,6 +4,8 @@ type User {
     username: String!
     password: String!
     email: String!
+    createdAt: Time!
+    updatedAt: Time!
 }
 
 input UserInput {
@@ -14,7 +16,7 @@ input UserInput {
 
 type Query {
     users: [User]
-    getUserById(id: ID!): User
+    getUserById(id: ID!): User!
 }
 
 type Mutation {

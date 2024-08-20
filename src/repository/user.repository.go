@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"fmt"
+
 	"github.com/diegofly91/apiturnos/src/model"
 
 	"gorm.io/gorm"
@@ -8,11 +10,11 @@ import (
 
 type UserRepository interface {
 	CreateUser(user model.User) (model.User, error)
-	FindAll() []model.User
-	FindById(id string) (model.User, error)
+	FindAll() ([]*model.User, error)
+	FindById(id string) (*model.User, error)
 	FindUserByUsername(username string) (model.User, error)
 	Update(user model.User) model.User
-	Deleted(id string) model.User
+	Deleted(id string) (model.User, error)
 }
 
 type userRepository struct {
@@ -38,18 +40,27 @@ func (r *userRepository) CreateUser(user model.User) (model.User, error) {
 	return user, nil
 }
 
-func (r *userRepository) FindAll() []model.User {
-	users := []model.User{}
-	r.db.Find(&users)
-	return users
+func (r *userRepository) FindAll() ([]*model.User, error) {
+	var users []*model.User
+	result := r.db.Find(&users)
+	fmt.Println(result.RowsAffected)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return users, nil
 }
 
-func (r *userRepository) FindById(id string) (model.User, error) {
-	user := model.User{}
-	if err := r.db.First(&user, id).Error; err != nil {
-		return model.User{}, err
+func (r *userRepository) FindById(id string) (*model.User, error) {
+	var user model.User
+	result := r.db.Find(&user, id)
+	if result.Error != nil {
+		return nil, result.Error
 	}
-	return user, nil
+	if result.RowsAffected == 0 {
+		return nil, fmt.Errorf("user not found")
+	}
+
+	return &user, nil
 }
 
 func (r *userRepository) Update(user model.User) model.User {
@@ -57,9 +68,13 @@ func (r *userRepository) Update(user model.User) model.User {
 	return user
 }
 
-func (r *userRepository) Deleted(id string) model.User {
+func (r *userRepository) Deleted(id string) (model.User, error) {
 	user := model.User{}
-	r.db.First(&user, id)
-	r.db.Delete(&user)
-	return user
+	if err := r.db.First(&user, id).Error; err != nil {
+		return model.User{}, err
+	}
+	if err := r.db.Delete(&user).Error; err != nil {
+		return model.User{}, err
+	}
+	return user, nil
 }
