@@ -6,41 +6,11 @@ package resolver
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/diegofly91/apiturnos/src/generated"
 	"github.com/diegofly91/apiturnos/src/model"
 )
 
-// CreateUser is the resolver for the createUser field.
-func (r *mutationResolver) CreateUser(ctx context.Context, input *model.UserInput) (*model.User, error) {
-	user := model.User{
-		Username: input.Username,
-		Password: input.Password,
-		Email:    input.Email,
-	}
-	createdUser, err := r.userService.CreateUser(user)
-	if err != nil {
-		return nil, err
-	}
-	return &createdUser, nil
-}
-
-// UpdateUser is the resolver for the updateUser field.
-func (r *mutationResolver) UpdateUser(ctx context.Context, id string, input *model.UserInput) (*model.User, error) {
-	panic(fmt.Errorf("not implemented: UpdateUser - updateUser"))
-}
-
-// DeleteUser is the resolver for the deleteUser field.
-func (r *mutationResolver) DeleteUser(ctx context.Context, id string) (*model.User, error) {
-	user, err := r.userService.DeleteUser(id)
-	if err != nil {
-		return nil, err
-	}
-	return &user, nil
-}
-
-// Users is the resolver for the users field.
 func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
 	return r.userService.FindAll()
 }
@@ -48,6 +18,21 @@ func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
 // GetUserByID is the resolver for the getUserById field.
 func (r *queryResolver) GetUserByID(ctx context.Context, id string) (*model.User, error) {
 	return r.userService.FindById(id)
+}
+
+// CreateUser is the resolver for the createUser field.
+func (r *mutationResolver) CreateUser(ctx context.Context, input *model.UserInput) (*model.User, error) {
+	return r.userService.CreateUser(input)
+}
+
+// UpdateUser is the resolver for the updateUser field.
+func (r *mutationResolver) UpdateUser(ctx context.Context, id string, input *model.UserInput) (*model.User, error) {
+	return r.userService.Update(id, input)
+}
+
+// DeleteUser is the resolver for the deleteUser field.
+func (r *mutationResolver) DeleteUser(ctx context.Context, id string) (*model.User, error) {
+	return r.userService.DeleteUser(id)
 }
 
 // Mutation returns generated.MutationResolver implementation.
