@@ -5,5 +5,20 @@ package model
 type Mutation struct {
 }
 
+type MutationUser struct {
+	CreateUser *User `json:"createUser"`
+	UpdateUser *User `json:"updateUser"`
+	DeleteUser *User `json:"deleteUser"`
+}
+
 type Query struct {
+}
+
+type QueryProfile struct {
+	GetProfileUserByID *Profile `json:"getProfileUserById"`
+}
+
+type QueryUser struct {
+	Users       []*User `json:"users,omitempty"`
+	GetUserByID *User   `json:"getUserById"`
 }

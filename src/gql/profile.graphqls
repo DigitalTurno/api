@@ -1,0 +1,12 @@
+type Profile {
+    id: ID!
+    userId: ID!
+    firstname: String
+    lastname: String
+    createdAt: Time!
+    updatedAt: Time!
+}
+
+type QueryProfile {
+   getProfileUserById(userId: Int!): Profile! @goField(forceResolver: true)
+}

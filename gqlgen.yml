@@ -20,7 +20,7 @@ resolver:
   layout: follow-schema
   dir: src/resolver
   package: resolver
-  #filename_template: "../{name}/resolver/{name}.resolver.go"
+  filename_template: "../resolver/{name}.resolver.go"
   #filename_template: "../../modules/{name}/resolver/{name}.resolver.go"
   # Optional: turn on to not generate template comments above resolvers
   # omit_template_comment: false
