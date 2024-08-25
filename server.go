@@ -23,7 +23,7 @@ func main() {
 		log.Fatal(err)
 	}
 	port := os.Getenv("PORT")
-	res := module.SetupModule()
+	res := module.SetupAppModule()
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: res}))
 	srv.SetErrorPresenter(func(ctx context.Context, e error) *gqlerror.Error {
 		err := graphql.DefaultErrorPresenter(ctx, e)

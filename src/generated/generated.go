@@ -418,7 +418,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "../gql/profile.graphqls", Input: `type Profile {
+	{Name: "../gql/profile.gql", Input: `type Profile {
     id: ID!
     userId: ID!
     firstname: String
@@ -430,7 +430,7 @@ var sources = []*ast.Source{
 type QueryProfile {
    getProfileUserById(userId: Int!): Profile! @goField(forceResolver: true)
 }`, BuiltIn: false},
-	{Name: "../gql/schema.graphqls", Input: `directive @goField(
+	{Name: "../gql/schema.gql", Input: `directive @goField(
   forceResolver: Boolean
   name: String
 ) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
@@ -449,7 +449,7 @@ type Mutation {
 
 
 `, BuiltIn: false},
-	{Name: "../gql/user.graphqls", Input: `type User {
+	{Name: "../gql/user.gql", Input: `type User {
     id: ID!
     username: String!
     password: String!
