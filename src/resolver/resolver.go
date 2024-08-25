@@ -12,8 +12,10 @@ type ResolverDependencies struct {
 }
 
 // NewResolver returns a new instance of Resolver with the given UserService.
-func NewResolver(deps ResolverDependencies) *Resolver {
+func GraphResolver() *Resolver {
+	userService := service.NewUserService()
+
 	return &Resolver{
-		userService: deps.UserService,
+		userService: userService,
 	}
 }

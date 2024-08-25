@@ -22,7 +22,6 @@ The project follows a modular architecture, separating concerns into distinct la
 - **GraphQL Schema and Resolvers**: Defines the GraphQL schema and associated resolver logic.
 - **Middlewares**: Handles cross-cutting concerns like logging, authentication, etc.
 - **Models**: Defines data structures and interacts with the database.
-- **Modules**: Encapsulates different features or domains of the application.
 - **Repositories**: Abstracts data access logic.
 - **Services**: Contains business logic.
 - **Utilities**: Provides helper functions and utilities used across the application.
@@ -50,9 +49,6 @@ api/
     ├── models/
     |   ├── **.model.go
     |   └── models_gen.go
-    ├── module/
-    |   ├── **.module.go
-    |   └── app.module.go
     ├── repository/
     |   └── **.repo.go
     ├── resolver/
@@ -93,10 +89,6 @@ api/
   - **`models/`**:
     - **`**.model.go`**: Defines data models representing entities in the application. Each model corresponds to a database table or a GraphQL type.
     - **`models_gen.go`**: Generated code for models, possibly created by gqlgen or another tool, containing boilerplate code or type definitions.
-
-  - **`module/`**:
-    - **`**.module.go`**: Module definitions or initializations. Each module encapsulates related functionality, promoting modularity and separation of concerns.
-    - **`app.module.go`**: Main module file that initializes and aggregates various modules within the application.
 
   - **`repository/`**:
     - **`**.repo.go`**: Repository implementations following the repository pattern. These files abstract data access logic, providing methods to interact with the data source (e.g., database queries).

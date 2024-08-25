@@ -3,8 +3,8 @@ package repository
 import (
 	"fmt"
 
+	db "github.com/diegofly91/apiturnos/src/config"
 	"github.com/diegofly91/apiturnos/src/model"
-
 	"gorm.io/gorm"
 )
 
@@ -21,8 +21,8 @@ type userRepository struct {
 	db *gorm.DB
 }
 
-func NewUserRepository(db *gorm.DB) UserRepository {
-	return &userRepository{db}
+func NewUserRepository() UserRepository {
+	return &userRepository{db.Database}
 }
 
 func (r *userRepository) FindUserByUsername(username string) (*model.User, error) {
