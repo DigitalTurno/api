@@ -4,6 +4,7 @@ type User {
     password: String!
     email: String!
     role: Role!
+    status: Status!
     createdAt: Time!
     updatedAt: Time!
 }

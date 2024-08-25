@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"log"
 	"net/http"
@@ -35,23 +34,25 @@ func main() {
 
 		return err
 	})
-	srv.AroundResponses(func(ctx context.Context, next graphql.ResponseHandler) *graphql.Response {
-		res := next(ctx)
+	/*
+		srv.AroundResponses(func(ctx context.Context, next graphql.ResponseHandler) *graphql.Response {
+			res := next(ctx)
 
-		// Deserializar el json.RawMessage a un mapa
-		var data map[string]interface{}
-		if err := json.Unmarshal(res.Data, &data); err != nil {
+			// Deserializar el json.RawMessage a un mapa
+			var data map[string]interface{}
+			if err := json.Unmarshal(res.Data, &data); err != nil {
+				return res
+			}
+
+			// Transformar la respuesta si contiene un campo como "QueryUser" o similar
+			for _, v := range data {
+				// Asignar los datos del primer campo de "QueryUser" directamente a "data"
+				res.Data, _ = json.Marshal(v)
+				break // Asumimos que solo hay un campo, por lo tanto, salimos del bucle
+			}
 			return res
-		}
-
-		// Transformar la respuesta si contiene un campo como "QueryUser" o similar
-		for _, v := range data {
-			// Asignar los datos del primer campo de "QueryUser" directamente a "data"
-			res.Data, _ = json.Marshal(v)
-			break // Asumimos que solo hay un campo, por lo tanto, salimos del bucle
-		}
-		return res
-	})
+		})
+	*/
 	http.Handle("/", playground.Handler("Api DigitalTurno GraphQL", "/query"))
 	http.Handle("/query", srv)
 

@@ -89,6 +89,7 @@ type ComplexityRoot struct {
 		ID        func(childComplexity int) int
 		Password  func(childComplexity int) int
 		Role      func(childComplexity int) int
+		Status    func(childComplexity int) int
 		UpdatedAt func(childComplexity int) int
 		Username  func(childComplexity int) int
 	}
@@ -298,6 +299,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.Role(childComplexity), true
 
+	case "User.status":
+		if e.complexity.User.Status == nil {
+			break
+		}
+
+		return e.complexity.User.Status(childComplexity), true
+
 	case "User.updatedAt":
 		if e.complexity.User.UpdatedAt == nil {
 			break
@@ -433,9 +441,15 @@ type QueryProfile {
 	{Name: "../gql/schema.gql", Input: `directive @goField(
   forceResolver: Boolean
   name: String
-) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
+) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION | OBJECT | INTERFACE | UNION | ENUM | ENUM_VALUE | SCALAR | INPUT_OBJECT | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | SCALAR | INPUT_OBJECT | ARGUMENT_DEFINITION
 
 scalar Time
+
+enum Status {
+    ACTIVE
+    INACTIVE
+    PREACTIVE
+}
 
 type Query {
     QueryUser: QueryUser! @goField(forceResolver: true)
@@ -455,6 +469,7 @@ type Mutation {
     password: String!
     email: String!
     role: Role!
+    status: Status!
     createdAt: Time!
     updatedAt: Time!
 }
@@ -465,6 +480,7 @@ enum Role {
     ADVISER
     GUEST
 }
+
 
 input UserInput {
     username: String!
@@ -727,6 +743,8 @@ func (ec *executionContext) fieldContext_MutationUser_createUser(ctx context.Con
 				return ec.fieldContext_User_email(ctx, field)
 			case "role":
 				return ec.fieldContext_User_role(ctx, field)
+			case "status":
+				return ec.fieldContext_User_status(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_User_createdAt(ctx, field)
 			case "updatedAt":
@@ -798,6 +816,8 @@ func (ec *executionContext) fieldContext_MutationUser_updateUser(ctx context.Con
 				return ec.fieldContext_User_email(ctx, field)
 			case "role":
 				return ec.fieldContext_User_role(ctx, field)
+			case "status":
+				return ec.fieldContext_User_status(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_User_createdAt(ctx, field)
 			case "updatedAt":
@@ -869,6 +889,8 @@ func (ec *executionContext) fieldContext_MutationUser_deleteUser(ctx context.Con
 				return ec.fieldContext_User_email(ctx, field)
 			case "role":
 				return ec.fieldContext_User_role(ctx, field)
+			case "status":
+				return ec.fieldContext_User_status(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_User_createdAt(ctx, field)
 			case "updatedAt":
@@ -1491,6 +1513,8 @@ func (ec *executionContext) fieldContext_QueryUser_users(_ context.Context, fiel
 				return ec.fieldContext_User_email(ctx, field)
 			case "role":
 				return ec.fieldContext_User_role(ctx, field)
+			case "status":
+				return ec.fieldContext_User_status(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_User_createdAt(ctx, field)
 			case "updatedAt":
@@ -1551,6 +1575,8 @@ func (ec *executionContext) fieldContext_QueryUser_getUserById(ctx context.Conte
 				return ec.fieldContext_User_email(ctx, field)
 			case "role":
 				return ec.fieldContext_User_role(ctx, field)
+			case "status":
+				return ec.fieldContext_User_status(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_User_createdAt(ctx, field)
 			case "updatedAt":
@@ -1788,6 +1814,50 @@ func (ec *executionContext) fieldContext_User_role(_ context.Context, field grap
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Role does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_status(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_status(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Status, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.Status)
+	fc.Result = res
+	return ec.marshalNStatus2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐStatus(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Status does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4255,6 +4325,11 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "status":
+			out.Values[i] = ec._User_status(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "createdAt":
 			out.Values[i] = ec._User_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -4737,6 +4812,22 @@ func (ec *executionContext) unmarshalNRole2githubᚗcomᚋdiegofly91ᚋapiturnos
 }
 
 func (ec *executionContext) marshalNRole2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐRole(ctx context.Context, sel ast.SelectionSet, v model.Role) graphql.Marshaler {
+	res := graphql.MarshalString(string(v))
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
+func (ec *executionContext) unmarshalNStatus2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐStatus(ctx context.Context, v interface{}) (model.Status, error) {
+	tmp, err := graphql.UnmarshalString(v)
+	res := model.Status(tmp)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNStatus2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐStatus(ctx context.Context, sel ast.SelectionSet, v model.Status) graphql.Marshaler {
 	res := graphql.MarshalString(string(v))
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {

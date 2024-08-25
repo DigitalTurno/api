@@ -1,9 +1,15 @@
 directive @goField(
   forceResolver: Boolean
   name: String
-) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
+) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION | OBJECT | INTERFACE | UNION | ENUM | ENUM_VALUE | SCALAR | INPUT_OBJECT | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | SCALAR | INPUT_OBJECT | ARGUMENT_DEFINITION
 
 scalar Time
+
+enum Status {
+    ACTIVE
+    INACTIVE
+    PREACTIVE
+}
 
 type Query {
     QueryUser: QueryUser! @goField(forceResolver: true)
