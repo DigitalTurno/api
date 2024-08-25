@@ -13,9 +13,9 @@ type ResolverDependencies struct {
 
 // NewResolver returns a new instance of Resolver with the given UserService.
 func GraphResolver() *Resolver {
-	userService := service.NewUserService()
 
 	return &Resolver{
-		userService: userService,
+		// user service is initialized in the resolver
+		userService: service.NewUserService(),
 	}
 }
