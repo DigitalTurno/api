@@ -88,6 +88,7 @@ type ComplexityRoot struct {
 		Email     func(childComplexity int) int
 		ID        func(childComplexity int) int
 		Password  func(childComplexity int) int
+		Role      func(childComplexity int) int
 		UpdatedAt func(childComplexity int) int
 		Username  func(childComplexity int) int
 	}
@@ -290,6 +291,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.Password(childComplexity), true
 
+	case "User.role":
+		if e.complexity.User.Role == nil {
+			break
+		}
+
+		return e.complexity.User.Role(childComplexity), true
+
 	case "User.updatedAt":
 		if e.complexity.User.UpdatedAt == nil {
 			break
@@ -446,8 +454,16 @@ type Mutation {
     username: String!
     password: String!
     email: String!
+    role: Role!
     createdAt: Time!
     updatedAt: Time!
+}
+
+enum Role {
+    SUPERUSER
+    ADMIN
+    ADVISER
+    GUEST
 }
 
 input UserInput {
@@ -709,6 +725,8 @@ func (ec *executionContext) fieldContext_MutationUser_createUser(ctx context.Con
 				return ec.fieldContext_User_password(ctx, field)
 			case "email":
 				return ec.fieldContext_User_email(ctx, field)
+			case "role":
+				return ec.fieldContext_User_role(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_User_createdAt(ctx, field)
 			case "updatedAt":
@@ -778,6 +796,8 @@ func (ec *executionContext) fieldContext_MutationUser_updateUser(ctx context.Con
 				return ec.fieldContext_User_password(ctx, field)
 			case "email":
 				return ec.fieldContext_User_email(ctx, field)
+			case "role":
+				return ec.fieldContext_User_role(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_User_createdAt(ctx, field)
 			case "updatedAt":
@@ -847,6 +867,8 @@ func (ec *executionContext) fieldContext_MutationUser_deleteUser(ctx context.Con
 				return ec.fieldContext_User_password(ctx, field)
 			case "email":
 				return ec.fieldContext_User_email(ctx, field)
+			case "role":
+				return ec.fieldContext_User_role(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_User_createdAt(ctx, field)
 			case "updatedAt":
@@ -1467,6 +1489,8 @@ func (ec *executionContext) fieldContext_QueryUser_users(_ context.Context, fiel
 				return ec.fieldContext_User_password(ctx, field)
 			case "email":
 				return ec.fieldContext_User_email(ctx, field)
+			case "role":
+				return ec.fieldContext_User_role(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_User_createdAt(ctx, field)
 			case "updatedAt":
@@ -1525,6 +1549,8 @@ func (ec *executionContext) fieldContext_QueryUser_getUserById(ctx context.Conte
 				return ec.fieldContext_User_password(ctx, field)
 			case "email":
 				return ec.fieldContext_User_email(ctx, field)
+			case "role":
+				return ec.fieldContext_User_role(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_User_createdAt(ctx, field)
 			case "updatedAt":
@@ -1718,6 +1744,50 @@ func (ec *executionContext) fieldContext_User_email(_ context.Context, field gra
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_role(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_role(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Role, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.Role)
+	fc.Result = res
+	return ec.marshalNRole2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐRole(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_role(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Role does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4180,6 +4250,11 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "role":
+			out.Values[i] = ec._User_role(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "createdAt":
 			out.Values[i] = ec._User_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -4653,6 +4728,22 @@ func (ec *executionContext) marshalNQueryUser2ᚖgithubᚗcomᚋdiegofly91ᚋapi
 		return graphql.Null
 	}
 	return ec._QueryUser(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNRole2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐRole(ctx context.Context, v interface{}) (model.Role, error) {
+	tmp, err := graphql.UnmarshalString(v)
+	res := model.Role(tmp)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNRole2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐRole(ctx context.Context, sel ast.SelectionSet, v model.Role) graphql.Marshaler {
+	res := graphql.MarshalString(string(v))
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {

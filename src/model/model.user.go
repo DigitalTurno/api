@@ -7,11 +7,21 @@ import (
 	"gorm.io/gorm"
 )
 
+type Role string
+
+const (
+	Admin     Role = "ADMIN"
+	SuperUser Role = "SUPERUSER"
+	Advisor   Role = "ADVISOR"
+	Guest     Role = "GUEST"
+)
+
 type User struct {
 	ID        int64           `gorm:"primaryKey;autoIncrement" json:"id"`
 	Username  string          `gorm:"type:varchar(100);not null;unique" json:"username" validate:"required,min=5,max=100"`
 	Password  string          `gorm:"type:varchar(100);not null" json:"-" validate:"required,min=8,max=100"`
 	Email     string          `gorm:"type:varchar(100);not null;unique" json:"email" validate:"required,email"`
+	Role      Role            `gorm:"type:enum('admin', 'superuser', 'advisor', 'guest');default:'guest'" json:"role"`
 	CreatedAt time.Time       `json:"createdAt"`
 	UpdatedAt time.Time       `json:"updatedAt"`
 	Deleted   *gorm.DeletedAt `gorm:"index" json:"deleted" ignore:"true"`
