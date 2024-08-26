@@ -5,15 +5,19 @@ import (
 )
 
 // CustomClaims define las reclamaciones personalizadas que incluyen los campos adicionales del modelo User
-type CustomClaims struct {
+type UserPayload struct {
 	Username string `json:"username"`
 	Id       int64  `json:"id"`
-	Role     string `json:"role"`
+	Role     Role   `json:"role"`
 	Email    string `json:"email"`
 	jwt.RegisteredClaims
 }
 
-type LoginUser struct {
+type LoginUserDto struct {
 	Username string `json:"username" validate:"required"`
 	Password string `json:"password" validate:"required"`
+}
+
+type Token struct {
+	AccessToken string `json:"access_token"`
 }

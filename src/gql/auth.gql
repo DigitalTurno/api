@@ -1,0 +1,23 @@
+type Token {
+    access_token: String!
+}
+
+type UserPayload {
+    id: ID!
+    username: String!
+    email: String!
+    role: Role!
+}
+
+input LoginUserDto {
+    username: String!
+    password: String!
+}
+
+type QueryAuth {
+    userCurrent: UserPayload! @goField(forceResolver: true)
+}
+
+type MutationAuth {
+    loginUser(input: LoginUserDto!): Token! @goField(forceResolver: true)
+}

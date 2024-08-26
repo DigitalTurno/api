@@ -14,11 +14,13 @@ enum Status {
 type Query {
     QueryUser: QueryUser! @goField(forceResolver: true)
     QueryProfile: QueryProfile! @goField(forceResolver: true)
+    QueryAuth: QueryAuth! @goField(forceResolver: true)
 }
 
 
 type Mutation {
    MutationUser: MutationUser! @goField(forceResolver: true)
+   MutationAuth: MutationAuth! @goField(forceResolver: true)
 }
 
 

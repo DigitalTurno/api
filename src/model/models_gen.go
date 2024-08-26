@@ -5,6 +5,10 @@ package model
 type Mutation struct {
 }
 
+type MutationAuth struct {
+	LoginUser *Token `json:"loginUser"`
+}
+
 type MutationUser struct {
 	CreateUser *User `json:"createUser"`
 	UpdateUser *User `json:"updateUser"`
@@ -12,6 +16,10 @@ type MutationUser struct {
 }
 
 type Query struct {
+}
+
+type QueryAuth struct {
+	UserCurrent *UserPayload `json:"userCurrent"`
 }
 
 type QueryProfile struct {

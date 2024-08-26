@@ -16,6 +16,11 @@ func (r *mutationResolver) MutationUser(ctx context.Context) (*model.MutationUse
 	return &model.MutationUser{}, nil
 }
 
+// MutationAuth is the resolver for the MutationAuth field.
+func (r *mutationResolver) MutationAuth(ctx context.Context) (*model.MutationAuth, error) {
+	return &model.MutationAuth{}, nil
+}
+
 // QueryUser is the resolver for the QueryUser field.
 func (r *queryResolver) QueryUser(ctx context.Context) (*model.QueryUser, error) {
 	return &model.QueryUser{}, nil
@@ -24,6 +29,11 @@ func (r *queryResolver) QueryUser(ctx context.Context) (*model.QueryUser, error)
 // QueryProfile is the resolver for the QueryProfile field.
 func (r *queryResolver) QueryProfile(ctx context.Context) (*model.QueryProfile, error) {
 	return &model.QueryProfile{}, nil
+}
+
+// QueryAuth is the resolver for the QueryAuth field.
+func (r *queryResolver) QueryAuth(ctx context.Context) (*model.QueryAuth, error) {
+	return &model.QueryAuth{}, nil
 }
 
 // Mutation returns generated.MutationResolver implementation.
