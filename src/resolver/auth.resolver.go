@@ -13,7 +13,7 @@ import (
 )
 
 // LoginUser is the resolver for the loginUser field.
-func (r *mutationAuthResolver) LoginUser(ctx context.Context, obj *model.MutationAuth, input model.LoginUserDto) (*model.Token, error) {
+func (r *mutationAuthResolver) LoginUser(ctx context.Context, obj *model.MutationAuth, input model.LoginUser) (*model.Token, error) {
 	return r.authService.Login(input.Username, input.Password)
 }
 

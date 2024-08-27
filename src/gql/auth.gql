@@ -6,10 +6,10 @@ type UserPayload {
     id: ID!
     username: String!
     email: String!
-    role: Role!
+    role: Role! 
 }
 
-input LoginUserDto {
+input LoginUser {
     username: String!
     password: String!
 }
@@ -19,5 +19,5 @@ type QueryAuth {
 }
 
 type MutationAuth {
-    loginUser(input: LoginUserDto!): Token! @goField(forceResolver: true)
+    loginUser(input: LoginUser!): Token! @goField(forceResolver: true)
 }

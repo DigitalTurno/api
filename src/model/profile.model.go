@@ -5,8 +5,8 @@ import (
 )
 
 type Profile struct {
-	ID        string    `gorm:"primaryKey;autoIncrement" json:"id"`
-	UserID    string    `gorm:"not null;index" json:"userId"` // Configurar como clave foránea y agregar índice
+	ID        int64     `gorm:"primaryKey;autoIncrement" json:"id"`
+	UserID    int64     `gorm:"not null;index" json:"userId"` // Configurar como clave foránea y agregar índice
 	Firstname *string   `gorm:"type:varchar(50); null;" json:"firstname" validate:"max=50"`
 	Lastname  *string   `gorm:"type:varchar(50); null;" json:"lastname" validate:"max=50"`
 	CreatedAt time.Time `json:"createdAt"`

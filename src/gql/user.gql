@@ -1,3 +1,5 @@
+directive @hasRole(role: Role!) on FIELD_DEFINITION
+
 type User {
     id: ID!
     username: String!

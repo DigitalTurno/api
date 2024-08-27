@@ -11,28 +11,28 @@ import (
 	"github.com/diegofly91/apiturnos/src/model"
 )
 
-// MutationUser is the resolver for the MutationUser field.
-func (r *mutationResolver) MutationUser(ctx context.Context) (*model.MutationUser, error) {
+// User is the resolver for the user field.
+func (r *mutationResolver) User(ctx context.Context) (*model.MutationUser, error) {
 	return &model.MutationUser{}, nil
 }
 
-// MutationAuth is the resolver for the MutationAuth field.
-func (r *mutationResolver) MutationAuth(ctx context.Context) (*model.MutationAuth, error) {
+// Auth is the resolver for the auth field.
+func (r *mutationResolver) Auth(ctx context.Context) (*model.MutationAuth, error) {
 	return &model.MutationAuth{}, nil
 }
 
-// QueryUser is the resolver for the QueryUser field.
-func (r *queryResolver) QueryUser(ctx context.Context) (*model.QueryUser, error) {
+// User is the resolver for the user field.
+func (r *queryResolver) User(ctx context.Context) (*model.QueryUser, error) {
 	return &model.QueryUser{}, nil
 }
 
-// QueryProfile is the resolver for the QueryProfile field.
-func (r *queryResolver) QueryProfile(ctx context.Context) (*model.QueryProfile, error) {
+// Profile is the resolver for the profile field.
+func (r *queryResolver) Profile(ctx context.Context) (*model.QueryProfile, error) {
 	return &model.QueryProfile{}, nil
 }
 
-// QueryAuth is the resolver for the QueryAuth field.
-func (r *queryResolver) QueryAuth(ctx context.Context) (*model.QueryAuth, error) {
+// Auth is the resolver for the auth field.
+func (r *queryResolver) Auth(ctx context.Context) (*model.QueryAuth, error) {
 	return &model.QueryAuth{}, nil
 }
 

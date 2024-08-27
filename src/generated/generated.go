@@ -49,16 +49,17 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
+	HasRole func(ctx context.Context, obj interface{}, next graphql.Resolver, role model.Role) (res interface{}, err error)
 }
 
 type ComplexityRoot struct {
 	Mutation struct {
-		MutationAuth func(childComplexity int) int
-		MutationUser func(childComplexity int) int
+		Auth func(childComplexity int) int
+		User func(childComplexity int) int
 	}
 
 	MutationAuth struct {
-		LoginUser func(childComplexity int, input model.LoginUserDto) int
+		LoginUser func(childComplexity int, input model.LoginUser) int
 	}
 
 	MutationUser struct {
@@ -77,9 +78,9 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		QueryAuth    func(childComplexity int) int
-		QueryProfile func(childComplexity int) int
-		QueryUser    func(childComplexity int) int
+		Auth    func(childComplexity int) int
+		Profile func(childComplexity int) int
+		User    func(childComplexity int) int
 	}
 
 	QueryAuth struct {
@@ -119,11 +120,11 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	MutationUser(ctx context.Context) (*model.MutationUser, error)
-	MutationAuth(ctx context.Context) (*model.MutationAuth, error)
+	User(ctx context.Context) (*model.MutationUser, error)
+	Auth(ctx context.Context) (*model.MutationAuth, error)
 }
 type MutationAuthResolver interface {
-	LoginUser(ctx context.Context, obj *model.MutationAuth, input model.LoginUserDto) (*model.Token, error)
+	LoginUser(ctx context.Context, obj *model.MutationAuth, input model.LoginUser) (*model.Token, error)
 }
 type MutationUserResolver interface {
 	CreateUser(ctx context.Context, obj *model.MutationUser, input *model.UserInput) (*model.User, error)
@@ -131,9 +132,9 @@ type MutationUserResolver interface {
 	DeleteUser(ctx context.Context, obj *model.MutationUser, id string) (*model.User, error)
 }
 type QueryResolver interface {
-	QueryUser(ctx context.Context) (*model.QueryUser, error)
-	QueryProfile(ctx context.Context) (*model.QueryProfile, error)
-	QueryAuth(ctx context.Context) (*model.QueryAuth, error)
+	User(ctx context.Context) (*model.QueryUser, error)
+	Profile(ctx context.Context) (*model.QueryProfile, error)
+	Auth(ctx context.Context) (*model.QueryAuth, error)
 }
 type QueryAuthResolver interface {
 	UserCurrent(ctx context.Context, obj *model.QueryAuth) (*model.UserPayload, error)
@@ -165,19 +166,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
-	case "Mutation.MutationAuth":
-		if e.complexity.Mutation.MutationAuth == nil {
+	case "Mutation.auth":
+		if e.complexity.Mutation.Auth == nil {
 			break
 		}
 
-		return e.complexity.Mutation.MutationAuth(childComplexity), true
+		return e.complexity.Mutation.Auth(childComplexity), true
 
-	case "Mutation.MutationUser":
-		if e.complexity.Mutation.MutationUser == nil {
+	case "Mutation.user":
+		if e.complexity.Mutation.User == nil {
 			break
 		}
 
-		return e.complexity.Mutation.MutationUser(childComplexity), true
+		return e.complexity.Mutation.User(childComplexity), true
 
 	case "MutationAuth.loginUser":
 		if e.complexity.MutationAuth.LoginUser == nil {
@@ -189,7 +190,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.MutationAuth.LoginUser(childComplexity, args["input"].(model.LoginUserDto)), true
+		return e.complexity.MutationAuth.LoginUser(childComplexity, args["input"].(model.LoginUser)), true
 
 	case "MutationUser.createUser":
 		if e.complexity.MutationUser.CreateUser == nil {
@@ -269,26 +270,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Profile.UserID(childComplexity), true
 
-	case "Query.QueryAuth":
-		if e.complexity.Query.QueryAuth == nil {
+	case "Query.auth":
+		if e.complexity.Query.Auth == nil {
 			break
 		}
 
-		return e.complexity.Query.QueryAuth(childComplexity), true
+		return e.complexity.Query.Auth(childComplexity), true
 
-	case "Query.QueryProfile":
-		if e.complexity.Query.QueryProfile == nil {
+	case "Query.profile":
+		if e.complexity.Query.Profile == nil {
 			break
 		}
 
-		return e.complexity.Query.QueryProfile(childComplexity), true
+		return e.complexity.Query.Profile(childComplexity), true
 
-	case "Query.QueryUser":
-		if e.complexity.Query.QueryUser == nil {
+	case "Query.user":
+		if e.complexity.Query.User == nil {
 			break
 		}
 
-		return e.complexity.Query.QueryUser(childComplexity), true
+		return e.complexity.Query.User(childComplexity), true
 
 	case "QueryAuth.userCurrent":
 		if e.complexity.QueryAuth.UserCurrent == nil {
@@ -427,7 +428,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
-		ec.unmarshalInputLoginUserDto,
+		ec.unmarshalInputLoginUser,
 		ec.unmarshalInputUserInput,
 	)
 	first := true
@@ -534,10 +535,10 @@ type UserPayload {
     id: ID!
     username: String!
     email: String!
-    role: Role!
+    role: Role! 
 }
 
-input LoginUserDto {
+input LoginUser {
     username: String!
     password: String!
 }
@@ -547,11 +548,11 @@ type QueryAuth {
 }
 
 type MutationAuth {
-    loginUser(input: LoginUserDto!): Token! @goField(forceResolver: true)
+    loginUser(input: LoginUser!): Token! @goField(forceResolver: true)
 }`, BuiltIn: false},
 	{Name: "../gql/profile.gql", Input: `type Profile {
     id: ID!
-    userId: ID!
+    userId: ID! @goField(name: "user_id")
     firstname: String
     lastname: String
     createdAt: Time!
@@ -564,7 +565,7 @@ type QueryProfile {
 	{Name: "../gql/schema.gql", Input: `directive @goField(
   forceResolver: Boolean
   name: String
-) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION | OBJECT | INTERFACE | UNION | ENUM | ENUM_VALUE | SCALAR | INPUT_OBJECT | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | SCALAR | INPUT_OBJECT | ARGUMENT_DEFINITION
+) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
 
 scalar Time
 
@@ -575,20 +576,22 @@ enum Status {
 }
 
 type Query {
-    QueryUser: QueryUser! @goField(forceResolver: true)
-    QueryProfile: QueryProfile! @goField(forceResolver: true)
-    QueryAuth: QueryAuth! @goField(forceResolver: true)
+    user: QueryUser! @goField(forceResolver: true)
+    profile: QueryProfile! @goField(forceResolver: true)
+    auth: QueryAuth! @goField(forceResolver: true)
 }
 
 
 type Mutation {
-   MutationUser: MutationUser! @goField(forceResolver: true)
-   MutationAuth: MutationAuth! @goField(forceResolver: true)
+   user: MutationUser! @goField(forceResolver: true)
+   auth: MutationAuth! @goField(forceResolver: true)
 }
 
 
 `, BuiltIn: false},
-	{Name: "../gql/user.gql", Input: `type User {
+	{Name: "../gql/user.gql", Input: `directive @hasRole(role: Role!) on FIELD_DEFINITION
+
+type User {
     id: ID!
     username: String!
     password: String!
@@ -629,13 +632,28 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
 // region    ***************************** args.gotpl *****************************
 
+func (ec *executionContext) dir_hasRole_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.Role
+	if tmp, ok := rawArgs["role"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("role"))
+		arg0, err = ec.unmarshalNRole2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐRole(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["role"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_MutationAuth_loginUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.LoginUserDto
+	var arg0 model.LoginUser
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNLoginUserDto2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐLoginUserDto(ctx, tmp)
+		arg0, err = ec.unmarshalNLoginUser2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐLoginUser(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -781,8 +799,8 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _Mutation_MutationUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_MutationUser(ctx, field)
+func (ec *executionContext) _Mutation_user(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_user(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -795,7 +813,7 @@ func (ec *executionContext) _Mutation_MutationUser(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().MutationUser(rctx)
+		return ec.resolvers.Mutation().User(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -812,7 +830,7 @@ func (ec *executionContext) _Mutation_MutationUser(ctx context.Context, field gr
 	return ec.marshalNMutationUser2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐMutationUser(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_MutationUser(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_user(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -833,8 +851,8 @@ func (ec *executionContext) fieldContext_Mutation_MutationUser(_ context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_MutationAuth(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_MutationAuth(ctx, field)
+func (ec *executionContext) _Mutation_auth(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_auth(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -847,7 +865,7 @@ func (ec *executionContext) _Mutation_MutationAuth(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().MutationAuth(rctx)
+		return ec.resolvers.Mutation().Auth(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -864,7 +882,7 @@ func (ec *executionContext) _Mutation_MutationAuth(ctx context.Context, field gr
 	return ec.marshalNMutationAuth2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐMutationAuth(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_MutationAuth(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_auth(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -895,7 +913,7 @@ func (ec *executionContext) _MutationAuth_loginUser(ctx context.Context, field g
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.MutationAuth().LoginUser(rctx, obj, fc.Args["input"].(model.LoginUserDto))
+		return ec.resolvers.MutationAuth().LoginUser(rctx, obj, fc.Args["input"].(model.LoginUser))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1185,9 +1203,9 @@ func (ec *executionContext) _Profile_id(ctx context.Context, field graphql.Colle
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int64)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2int64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Profile_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1229,9 +1247,9 @@ func (ec *executionContext) _Profile_userId(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int64)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2int64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Profile_userId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1417,8 +1435,8 @@ func (ec *executionContext) fieldContext_Profile_updatedAt(_ context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_QueryUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_QueryUser(ctx, field)
+func (ec *executionContext) _Query_user(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_user(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1431,7 +1449,7 @@ func (ec *executionContext) _Query_QueryUser(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().QueryUser(rctx)
+		return ec.resolvers.Query().User(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1448,7 +1466,7 @@ func (ec *executionContext) _Query_QueryUser(ctx context.Context, field graphql.
 	return ec.marshalNQueryUser2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐQueryUser(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_QueryUser(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_user(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -1467,8 +1485,8 @@ func (ec *executionContext) fieldContext_Query_QueryUser(_ context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_QueryProfile(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_QueryProfile(ctx, field)
+func (ec *executionContext) _Query_profile(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_profile(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1481,7 +1499,7 @@ func (ec *executionContext) _Query_QueryProfile(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().QueryProfile(rctx)
+		return ec.resolvers.Query().Profile(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1498,7 +1516,7 @@ func (ec *executionContext) _Query_QueryProfile(ctx context.Context, field graph
 	return ec.marshalNQueryProfile2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐQueryProfile(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_QueryProfile(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_profile(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -1515,8 +1533,8 @@ func (ec *executionContext) fieldContext_Query_QueryProfile(_ context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_QueryAuth(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_QueryAuth(ctx, field)
+func (ec *executionContext) _Query_auth(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_auth(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1529,7 +1547,7 @@ func (ec *executionContext) _Query_QueryAuth(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().QueryAuth(rctx)
+		return ec.resolvers.Query().Auth(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1546,7 +1564,7 @@ func (ec *executionContext) _Query_QueryAuth(ctx context.Context, field graphql.
 	return ec.marshalNQueryAuth2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐQueryAuth(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_QueryAuth(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_auth(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -4292,8 +4310,8 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(_ context.Context
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputLoginUserDto(ctx context.Context, obj interface{}) (model.LoginUserDto, error) {
-	var it model.LoginUserDto
+func (ec *executionContext) unmarshalInputLoginUser(ctx context.Context, obj interface{}) (model.LoginUser, error) {
+	var it model.LoginUser
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -4394,16 +4412,16 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
-		case "MutationUser":
+		case "user":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_MutationUser(ctx, field)
+				return ec._Mutation_user(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "MutationAuth":
+		case "auth":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_MutationAuth(ctx, field)
+				return ec._Mutation_auth(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -4720,7 +4738,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
-		case "QueryUser":
+		case "user":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -4729,7 +4747,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_QueryUser(ctx, field)
+				res = ec._Query_user(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -4742,7 +4760,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "QueryProfile":
+		case "profile":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -4751,7 +4769,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_QueryProfile(ctx, field)
+				res = ec._Query_profile(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -4764,7 +4782,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "QueryAuth":
+		case "auth":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -4773,7 +4791,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_QueryAuth(ctx, field)
+				res = ec._Query_auth(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -5613,8 +5631,8 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
-func (ec *executionContext) unmarshalNLoginUserDto2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐLoginUserDto(ctx context.Context, v interface{}) (model.LoginUserDto, error) {
-	res, err := ec.unmarshalInputLoginUserDto(ctx, v)
+func (ec *executionContext) unmarshalNLoginUser2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐLoginUser(ctx context.Context, v interface{}) (model.LoginUser, error) {
+	res, err := ec.unmarshalInputLoginUser(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
