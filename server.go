@@ -13,10 +13,10 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/diegofly91/apiturnos/src/generated"
 	"github.com/diegofly91/apiturnos/src/migration"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 
 	"github.com/diegofly91/apiturnos/src/resolver"
 	"github.com/joho/godotenv"
-	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
 func main() {
@@ -47,10 +47,17 @@ func main() {
 			return res
 		}
 
-		// Transformar la respuesta si contiene un campo como "QueryUser" o similar
 		for _, v := range data {
-			// Asignar los datos del primer campo de "QueryUser" directamente a "data"
-			res.Data, _ = json.Marshal(v)
+			// Asegurarse de que v es del tipo esperado
+			if newData, ok := v.(map[string]interface{}); ok {
+				if _, ok := newData["directives"]; ok {
+					return res
+				}
+				res.Data, err = json.Marshal(newData)
+				if err != nil {
+					return res
+				}
+			}
 			break // Asumimos que solo hay un campo, por lo tanto, salimos del bucle
 		}
 		return res
