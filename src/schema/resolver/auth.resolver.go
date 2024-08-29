@@ -10,7 +10,7 @@ import (
 
 	"github.com/diegofly91/apiturnos/src/constants"
 	"github.com/diegofly91/apiturnos/src/generated"
-	"github.com/diegofly91/apiturnos/src/model"
+	"github.com/diegofly91/apiturnos/src/schema/model"
 )
 
 // LoginUser is the resolver for the loginUser field.
@@ -25,8 +25,6 @@ func (r *queryAuthResolver) UserCurrent(ctx context.Context, obj *model.QueryAut
 		return nil, fmt.Errorf("Access Denieds")
 	}
 	return payload, nil
-
-	//return nil, fmt.Errorf("not implemented")
 }
 
 // MutationAuth returns generated.MutationAuthResolver implementation.

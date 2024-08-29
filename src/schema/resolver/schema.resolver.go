@@ -8,7 +8,7 @@ import (
 	"context"
 
 	"github.com/diegofly91/apiturnos/src/generated"
-	"github.com/diegofly91/apiturnos/src/model"
+	"github.com/diegofly91/apiturnos/src/schema/model"
 )
 
 // User is the resolver for the user field.

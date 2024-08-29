@@ -7,14 +7,16 @@ import (
 	"gorm.io/gorm"
 )
 
-type Role string
 type Status string
 
 const (
 	Active    Status = "ACTIVE"
 	Inactive  Status = "INACTIVE"
-	Preactive Status = "PREACTIVE"
+	PreActive Status = "PREACTIVE"
 )
+
+type Role string
+
 const (
 	Admin     Role = "ADMIN"
 	SuperUser Role = "SUPERUSER"

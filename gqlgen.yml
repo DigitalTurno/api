@@ -1,6 +1,6 @@
 # Where are all the schema files located? globs are supported eg  src/**/*.graphqls
 schema:
-  - src/gql/*.gql
+  - src/schema/gql/*.gql
 
 exec:
   filename: src/generated/generated.go
@@ -12,15 +12,15 @@ exec:
 
 # Where should any generated models go?
 model:
-  filename: src/model/models_gen.go
+  filename: src/schema/model/models_gen.go
   package: model
 
 # Where should the resolver implementations go?
 resolver:
   layout: follow-schema
-  dir: src/resolver
+  dir: src/schema/resolver
   package: resolver
-  filename_template: "../resolver/{name}.resolver.go"
+  filename_template: "{name}.resolver.go"
   #filename_template: "../../modules/{name}/resolver/{name}.resolver.go"
   # Optional: turn on to not generate template comments above resolvers
   # omit_template_comment: false
@@ -67,7 +67,7 @@ resolver:
 # if they match it will use them, otherwise it will generate them.
 autobind:
   #- "github.com/diegofly91/apiturnos/src/graph/model"
-  - "github.com/diegofly91/apiturnos/src/model"
+  - "github.com/diegofly91/apiturnos/src/schema/model"
 
 # This section declares type mapping between the GraphQL and go type systems
 #

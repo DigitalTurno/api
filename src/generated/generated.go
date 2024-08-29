@@ -14,7 +14,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
-	"github.com/diegofly91/apiturnos/src/model"
+	"github.com/diegofly91/apiturnos/src/schema/model"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -528,7 +528,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "../gql/auth.gql", Input: `type Token {
+	{Name: "../schema/gql/auth.gql", Input: `type Token {
     access_token: String!
 }
 
@@ -551,7 +551,7 @@ type QueryAuth {
 type MutationAuth {
     loginUser(input: LoginUser!): Token! @goField(forceResolver: true)
 }`, BuiltIn: false},
-	{Name: "../gql/profile.gql", Input: `type Profile {
+	{Name: "../schema/gql/profile.gql", Input: `type Profile {
     id: ID!
     userId: ID! @goField(name: "user_id")
     firstname: String
@@ -563,7 +563,7 @@ type MutationAuth {
 type QueryProfile {
    getProfileUserById(userId: Int!): Profile! @goField(forceResolver: true)
 }`, BuiltIn: false},
-	{Name: "../gql/schema.gql", Input: `directive @goField(
+	{Name: "../schema/gql/schema.gql", Input: `directive @goField(
   forceResolver: Boolean
   name: String
 ) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
@@ -595,7 +595,7 @@ type Mutation {
 
 
 `, BuiltIn: false},
-	{Name: "../gql/user.gql", Input: `type User {
+	{Name: "../schema/gql/user.gql", Input: `type User {
     id: ID!
     username: String!
     password: String!
@@ -607,7 +607,7 @@ type Mutation {
 }
 
 enum Role {
-    ## SUPERUSER has all the permissions of the system ##
+    ### SUPERUSER has all the permissions of the system ###
     SUPERUSER
     ## ADMIN has all the permissions of the system except for the SUPERUSER ##
     ADMIN
@@ -646,7 +646,7 @@ func (ec *executionContext) dir_hasRole_args(ctx context.Context, rawArgs map[st
 	var arg0 []model.Role
 	if tmp, ok := rawArgs["roles"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("roles"))
-		arg0, err = ec.unmarshalORole2ᚕgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐRoleᚄ(ctx, tmp)
+		arg0, err = ec.unmarshalORole2ᚕgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐRoleᚄ(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -661,7 +661,7 @@ func (ec *executionContext) field_MutationAuth_loginUser_args(ctx context.Contex
 	var arg0 model.LoginUser
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNLoginUser2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐLoginUser(ctx, tmp)
+		arg0, err = ec.unmarshalNLoginUser2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐLoginUser(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -676,7 +676,7 @@ func (ec *executionContext) field_MutationUser_createUser_args(ctx context.Conte
 	var arg0 *model.UserInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalOUserInput2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐUserInput(ctx, tmp)
+		arg0, err = ec.unmarshalOUserInput2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐUserInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -715,7 +715,7 @@ func (ec *executionContext) field_MutationUser_updateUser_args(ctx context.Conte
 	var arg1 *model.UserInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg1, err = ec.unmarshalOUserInput2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐUserInput(ctx, tmp)
+		arg1, err = ec.unmarshalOUserInput2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐUserInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -835,7 +835,7 @@ func (ec *executionContext) _Mutation_user(ctx context.Context, field graphql.Co
 	}
 	res := resTmp.(*model.MutationUser)
 	fc.Result = res
-	return ec.marshalNMutationUser2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐMutationUser(ctx, field.Selections, res)
+	return ec.marshalNMutationUser2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐMutationUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_user(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -887,7 +887,7 @@ func (ec *executionContext) _Mutation_auth(ctx context.Context, field graphql.Co
 	}
 	res := resTmp.(*model.MutationAuth)
 	fc.Result = res
-	return ec.marshalNMutationAuth2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐMutationAuth(ctx, field.Selections, res)
+	return ec.marshalNMutationAuth2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐMutationAuth(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_auth(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -935,7 +935,7 @@ func (ec *executionContext) _MutationAuth_loginUser(ctx context.Context, field g
 	}
 	res := resTmp.(*model.Token)
 	fc.Result = res
-	return ec.marshalNToken2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐToken(ctx, field.Selections, res)
+	return ec.marshalNToken2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐToken(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_MutationAuth_loginUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -994,7 +994,7 @@ func (ec *executionContext) _MutationUser_createUser(ctx context.Context, field 
 	}
 	res := resTmp.(*model.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_MutationUser_createUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1067,7 +1067,7 @@ func (ec *executionContext) _MutationUser_updateUser(ctx context.Context, field 
 	}
 	res := resTmp.(*model.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_MutationUser_updateUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1140,7 +1140,7 @@ func (ec *executionContext) _MutationUser_deleteUser(ctx context.Context, field 
 	}
 	res := resTmp.(*model.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_MutationUser_deleteUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1471,7 +1471,7 @@ func (ec *executionContext) _Query_user(ctx context.Context, field graphql.Colle
 	}
 	res := resTmp.(*model.QueryUser)
 	fc.Result = res
-	return ec.marshalNQueryUser2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐQueryUser(ctx, field.Selections, res)
+	return ec.marshalNQueryUser2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐQueryUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_user(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1521,7 +1521,7 @@ func (ec *executionContext) _Query_profile(ctx context.Context, field graphql.Co
 	}
 	res := resTmp.(*model.QueryProfile)
 	fc.Result = res
-	return ec.marshalNQueryProfile2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐQueryProfile(ctx, field.Selections, res)
+	return ec.marshalNQueryProfile2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐQueryProfile(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_profile(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1569,7 +1569,7 @@ func (ec *executionContext) _Query_auth(ctx context.Context, field graphql.Colle
 	}
 	res := resTmp.(*model.QueryAuth)
 	fc.Result = res
-	return ec.marshalNQueryAuth2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐQueryAuth(ctx, field.Selections, res)
+	return ec.marshalNQueryAuth2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐQueryAuth(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_auth(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1752,7 +1752,7 @@ func (ec *executionContext) _QueryAuth_userCurrent(ctx context.Context, field gr
 		if data, ok := tmp.(*model.UserPayload); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/diegofly91/apiturnos/src/model.UserPayload`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/diegofly91/apiturnos/src/schema/model.UserPayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1766,7 +1766,7 @@ func (ec *executionContext) _QueryAuth_userCurrent(ctx context.Context, field gr
 	}
 	res := resTmp.(*model.UserPayload)
 	fc.Result = res
-	return ec.marshalNUserPayload2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐUserPayload(ctx, field.Selections, res)
+	return ec.marshalNUserPayload2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐUserPayload(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_QueryAuth_userCurrent(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1820,7 +1820,7 @@ func (ec *executionContext) _QueryProfile_getProfileUserById(ctx context.Context
 	}
 	res := resTmp.(*model.Profile)
 	fc.Result = res
-	return ec.marshalNProfile2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐProfile(ctx, field.Selections, res)
+	return ec.marshalNProfile2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐProfile(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_QueryProfile_getProfileUserById(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1879,7 +1879,7 @@ func (ec *executionContext) _QueryUser_users(ctx context.Context, field graphql.
 			return ec.resolvers.QueryUser().Users(rctx, obj)
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
-			roles, err := ec.unmarshalORole2ᚕgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐRoleᚄ(ctx, []interface{}{"ADMIN", "GUEST"})
+			roles, err := ec.unmarshalORole2ᚕgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐRoleᚄ(ctx, []interface{}{"ADMIN", "GUEST"})
 			if err != nil {
 				return nil, err
 			}
@@ -1899,7 +1899,7 @@ func (ec *executionContext) _QueryUser_users(ctx context.Context, field graphql.
 		if data, ok := tmp.([]*model.User); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/diegofly91/apiturnos/src/model.User`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/diegofly91/apiturnos/src/schema/model.User`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1910,7 +1910,7 @@ func (ec *executionContext) _QueryUser_users(ctx context.Context, field graphql.
 	}
 	res := resTmp.([]*model.User)
 	fc.Result = res
-	return ec.marshalOUser2ᚕᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalOUser2ᚕᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_QueryUser_users(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1972,7 +1972,7 @@ func (ec *executionContext) _QueryUser_getUserById(ctx context.Context, field gr
 	}
 	res := resTmp.(*model.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_QueryUser_getUserById(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2265,7 +2265,7 @@ func (ec *executionContext) _User_role(ctx context.Context, field graphql.Collec
 	}
 	res := resTmp.(model.Role)
 	fc.Result = res
-	return ec.marshalNRole2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐRole(ctx, field.Selections, res)
+	return ec.marshalNRole2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐRole(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_User_role(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2309,7 +2309,7 @@ func (ec *executionContext) _User_status(ctx context.Context, field graphql.Coll
 	}
 	res := resTmp.(model.Status)
 	fc.Result = res
-	return ec.marshalNStatus2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐStatus(ctx, field.Selections, res)
+	return ec.marshalNStatus2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐStatus(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_User_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2573,7 +2573,7 @@ func (ec *executionContext) _UserPayload_role(ctx context.Context, field graphql
 	}
 	res := resTmp.(model.Role)
 	fc.Result = res
-	return ec.marshalNRole2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐRole(ctx, field.Selections, res)
+	return ec.marshalNRole2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐRole(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_UserPayload_role(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5683,16 +5683,16 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
-func (ec *executionContext) unmarshalNLoginUser2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐLoginUser(ctx context.Context, v interface{}) (model.LoginUser, error) {
+func (ec *executionContext) unmarshalNLoginUser2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐLoginUser(ctx context.Context, v interface{}) (model.LoginUser, error) {
 	res, err := ec.unmarshalInputLoginUser(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNMutationAuth2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐMutationAuth(ctx context.Context, sel ast.SelectionSet, v model.MutationAuth) graphql.Marshaler {
+func (ec *executionContext) marshalNMutationAuth2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐMutationAuth(ctx context.Context, sel ast.SelectionSet, v model.MutationAuth) graphql.Marshaler {
 	return ec._MutationAuth(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNMutationAuth2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐMutationAuth(ctx context.Context, sel ast.SelectionSet, v *model.MutationAuth) graphql.Marshaler {
+func (ec *executionContext) marshalNMutationAuth2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐMutationAuth(ctx context.Context, sel ast.SelectionSet, v *model.MutationAuth) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -5702,11 +5702,11 @@ func (ec *executionContext) marshalNMutationAuth2ᚖgithubᚗcomᚋdiegofly91ᚋ
 	return ec._MutationAuth(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNMutationUser2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐMutationUser(ctx context.Context, sel ast.SelectionSet, v model.MutationUser) graphql.Marshaler {
+func (ec *executionContext) marshalNMutationUser2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐMutationUser(ctx context.Context, sel ast.SelectionSet, v model.MutationUser) graphql.Marshaler {
 	return ec._MutationUser(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNMutationUser2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐMutationUser(ctx context.Context, sel ast.SelectionSet, v *model.MutationUser) graphql.Marshaler {
+func (ec *executionContext) marshalNMutationUser2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐMutationUser(ctx context.Context, sel ast.SelectionSet, v *model.MutationUser) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -5716,11 +5716,11 @@ func (ec *executionContext) marshalNMutationUser2ᚖgithubᚗcomᚋdiegofly91ᚋ
 	return ec._MutationUser(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNProfile2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐProfile(ctx context.Context, sel ast.SelectionSet, v model.Profile) graphql.Marshaler {
+func (ec *executionContext) marshalNProfile2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐProfile(ctx context.Context, sel ast.SelectionSet, v model.Profile) graphql.Marshaler {
 	return ec._Profile(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNProfile2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐProfile(ctx context.Context, sel ast.SelectionSet, v *model.Profile) graphql.Marshaler {
+func (ec *executionContext) marshalNProfile2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐProfile(ctx context.Context, sel ast.SelectionSet, v *model.Profile) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -5730,11 +5730,11 @@ func (ec *executionContext) marshalNProfile2ᚖgithubᚗcomᚋdiegofly91ᚋapitu
 	return ec._Profile(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNQueryAuth2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐQueryAuth(ctx context.Context, sel ast.SelectionSet, v model.QueryAuth) graphql.Marshaler {
+func (ec *executionContext) marshalNQueryAuth2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐQueryAuth(ctx context.Context, sel ast.SelectionSet, v model.QueryAuth) graphql.Marshaler {
 	return ec._QueryAuth(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNQueryAuth2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐQueryAuth(ctx context.Context, sel ast.SelectionSet, v *model.QueryAuth) graphql.Marshaler {
+func (ec *executionContext) marshalNQueryAuth2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐQueryAuth(ctx context.Context, sel ast.SelectionSet, v *model.QueryAuth) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -5744,11 +5744,11 @@ func (ec *executionContext) marshalNQueryAuth2ᚖgithubᚗcomᚋdiegofly91ᚋapi
 	return ec._QueryAuth(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNQueryProfile2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐQueryProfile(ctx context.Context, sel ast.SelectionSet, v model.QueryProfile) graphql.Marshaler {
+func (ec *executionContext) marshalNQueryProfile2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐQueryProfile(ctx context.Context, sel ast.SelectionSet, v model.QueryProfile) graphql.Marshaler {
 	return ec._QueryProfile(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNQueryProfile2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐQueryProfile(ctx context.Context, sel ast.SelectionSet, v *model.QueryProfile) graphql.Marshaler {
+func (ec *executionContext) marshalNQueryProfile2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐQueryProfile(ctx context.Context, sel ast.SelectionSet, v *model.QueryProfile) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -5758,11 +5758,11 @@ func (ec *executionContext) marshalNQueryProfile2ᚖgithubᚗcomᚋdiegofly91ᚋ
 	return ec._QueryProfile(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNQueryUser2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐQueryUser(ctx context.Context, sel ast.SelectionSet, v model.QueryUser) graphql.Marshaler {
+func (ec *executionContext) marshalNQueryUser2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐQueryUser(ctx context.Context, sel ast.SelectionSet, v model.QueryUser) graphql.Marshaler {
 	return ec._QueryUser(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNQueryUser2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐQueryUser(ctx context.Context, sel ast.SelectionSet, v *model.QueryUser) graphql.Marshaler {
+func (ec *executionContext) marshalNQueryUser2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐQueryUser(ctx context.Context, sel ast.SelectionSet, v *model.QueryUser) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -5772,13 +5772,13 @@ func (ec *executionContext) marshalNQueryUser2ᚖgithubᚗcomᚋdiegofly91ᚋapi
 	return ec._QueryUser(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNRole2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐRole(ctx context.Context, v interface{}) (model.Role, error) {
+func (ec *executionContext) unmarshalNRole2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐRole(ctx context.Context, v interface{}) (model.Role, error) {
 	tmp, err := graphql.UnmarshalString(v)
 	res := model.Role(tmp)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNRole2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐRole(ctx context.Context, sel ast.SelectionSet, v model.Role) graphql.Marshaler {
+func (ec *executionContext) marshalNRole2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐRole(ctx context.Context, sel ast.SelectionSet, v model.Role) graphql.Marshaler {
 	res := graphql.MarshalString(string(v))
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -5788,13 +5788,13 @@ func (ec *executionContext) marshalNRole2githubᚗcomᚋdiegofly91ᚋapiturnos�
 	return res
 }
 
-func (ec *executionContext) unmarshalNStatus2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐStatus(ctx context.Context, v interface{}) (model.Status, error) {
+func (ec *executionContext) unmarshalNStatus2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐStatus(ctx context.Context, v interface{}) (model.Status, error) {
 	tmp, err := graphql.UnmarshalString(v)
 	res := model.Status(tmp)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNStatus2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐStatus(ctx context.Context, sel ast.SelectionSet, v model.Status) graphql.Marshaler {
+func (ec *executionContext) marshalNStatus2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐStatus(ctx context.Context, sel ast.SelectionSet, v model.Status) graphql.Marshaler {
 	res := graphql.MarshalString(string(v))
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -5834,11 +5834,11 @@ func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel as
 	return res
 }
 
-func (ec *executionContext) marshalNToken2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐToken(ctx context.Context, sel ast.SelectionSet, v model.Token) graphql.Marshaler {
+func (ec *executionContext) marshalNToken2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐToken(ctx context.Context, sel ast.SelectionSet, v model.Token) graphql.Marshaler {
 	return ec._Token(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNToken2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐToken(ctx context.Context, sel ast.SelectionSet, v *model.Token) graphql.Marshaler {
+func (ec *executionContext) marshalNToken2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐToken(ctx context.Context, sel ast.SelectionSet, v *model.Token) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -5848,11 +5848,11 @@ func (ec *executionContext) marshalNToken2ᚖgithubᚗcomᚋdiegofly91ᚋapiturn
 	return ec._Token(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNUser2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {
 	return ec._User(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -5862,11 +5862,11 @@ func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋdiegofly91ᚋapiturno
 	return ec._User(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNUserPayload2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐUserPayload(ctx context.Context, sel ast.SelectionSet, v model.UserPayload) graphql.Marshaler {
+func (ec *executionContext) marshalNUserPayload2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐUserPayload(ctx context.Context, sel ast.SelectionSet, v model.UserPayload) graphql.Marshaler {
 	return ec._UserPayload(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNUserPayload2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐUserPayload(ctx context.Context, sel ast.SelectionSet, v *model.UserPayload) graphql.Marshaler {
+func (ec *executionContext) marshalNUserPayload2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐUserPayload(ctx context.Context, sel ast.SelectionSet, v *model.UserPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -6155,7 +6155,7 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
-func (ec *executionContext) unmarshalORole2ᚕgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐRoleᚄ(ctx context.Context, v interface{}) ([]model.Role, error) {
+func (ec *executionContext) unmarshalORole2ᚕgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐRoleᚄ(ctx context.Context, v interface{}) ([]model.Role, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -6167,7 +6167,7 @@ func (ec *executionContext) unmarshalORole2ᚕgithubᚗcomᚋdiegofly91ᚋapitur
 	res := make([]model.Role, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNRole2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐRole(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNRole2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐRole(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -6175,7 +6175,7 @@ func (ec *executionContext) unmarshalORole2ᚕgithubᚗcomᚋdiegofly91ᚋapitur
 	return res, nil
 }
 
-func (ec *executionContext) marshalORole2ᚕgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐRoleᚄ(ctx context.Context, sel ast.SelectionSet, v []model.Role) graphql.Marshaler {
+func (ec *executionContext) marshalORole2ᚕgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐRoleᚄ(ctx context.Context, sel ast.SelectionSet, v []model.Role) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -6202,7 +6202,7 @@ func (ec *executionContext) marshalORole2ᚕgithubᚗcomᚋdiegofly91ᚋapiturno
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNRole2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐRole(ctx, sel, v[i])
+			ret[i] = ec.marshalNRole2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐRole(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -6238,7 +6238,7 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	return res
 }
 
-func (ec *executionContext) marshalOUser2ᚕᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v []*model.User) graphql.Marshaler {
+func (ec *executionContext) marshalOUser2ᚕᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v []*model.User) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -6265,7 +6265,7 @@ func (ec *executionContext) marshalOUser2ᚕᚖgithubᚗcomᚋdiegofly91ᚋapitu
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOUser2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐUser(ctx, sel, v[i])
+			ret[i] = ec.marshalOUser2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐUser(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -6279,14 +6279,14 @@ func (ec *executionContext) marshalOUser2ᚕᚖgithubᚗcomᚋdiegofly91ᚋapitu
 	return ret
 }
 
-func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
+func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._User(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOUserInput2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐUserInput(ctx context.Context, v interface{}) (*model.UserInput, error) {
+func (ec *executionContext) unmarshalOUserInput2ᚖgithubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋschemaᚋmodelᚐUserInput(ctx context.Context, v interface{}) (*model.UserInput, error) {
 	if v == nil {
 		return nil, nil
 	}

@@ -7,8 +7,8 @@ import (
 	"net/http"
 
 	"github.com/diegofly91/apiturnos/src/constants"
-	"github.com/diegofly91/apiturnos/src/model"
-	"github.com/diegofly91/apiturnos/src/service"
+	"github.com/diegofly91/apiturnos/src/modules/auth/service"
+	"github.com/diegofly91/apiturnos/src/schema/model"
 )
 
 type authString string

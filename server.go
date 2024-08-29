@@ -7,15 +7,14 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/diegofly91/apiturnos/src"
-	"github.com/diegofly91/apiturnos/src/middleware"
-	"github.com/diegofly91/apiturnos/src/migration"
+	"github.com/diegofly91/apiturnos/src/modules/auth/middleware"
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 )
 
 func main() {
-	migration.MigrateTable()
+
 	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatal(err)

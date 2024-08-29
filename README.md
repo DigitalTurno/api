@@ -42,28 +42,32 @@ api/
     |   └── database.go
     ├── generate/
     |   └── generate.go
-    ├── directives/
-    |   └── **.go
-    ├── gql/
-    |   ├── **.graphqls
-    |   └── schema.graphqls
-    ├── middlawares/
-    |   └── **.mdlw.go
-    ├── models/
-    |   ├── **.model.go
-    |   └── models_gen.go
-    ├── repository/
-    |   └── **.repo.go
-    ├── resolver/
-    |   ├── resolver.go
-    |   ├── schema.resolver.go        
-    |   └── **.resolver.go
-    ├── service/
-    |   └── **.service.go
+    ├── modules/
+    |   └── {name}/
+    |       ├── repository/
+    |       |   └── **.repo.go
+    |       ├── service/
+    |       |   └── **.service.go
+    |       ├── middleware/
+    |       |   └── **.mdlw.go
+    ├── schema/
+    |      ├── directives/
+    |      |   └── **.go
+    |      ├── gql/
+    |      |   ├── **.graphqls
+    |      |   └── schema.graphqls
+    |      ├── migration/
+    |      |   └── migration.go
+    |      ├── model/
+    |      |   ├── **.model.go
+    |      |   └── models_gen.go
+    |      ├── resolver/
+    |      |   ├── resolver.go
+    |      |   ├── schema.resolver.go        
+    |      |   └── **.resolver.go
     └── utils/
         └── **.util.go
 ```
-
 ### Description of Directories and Files
 
 - **`gqlgen.yml`**: Configuration file for gqlgen. It defines schema paths, resolver mappings, and code generation settings.
@@ -76,33 +80,45 @@ api/
 
 - **`src/`**: Contains all the source code organized into subdirectories based on functionality.
 
+  - **`app.handlers.go`**: Handles the main application routes and request handling logic.
+
   - **`config/`**:
     - **`database.go`**: Handles database connection setup, loading configurations, and initializing database clients.
 
   - **`generate/`**:
     - **`generate.go`**: Contains scripts or commands related to code generation, such as generating resolvers or models using gqlgen.
 
-  - **`gql/`**:
-    - **`**.graphqls`**: Individual GraphQL schema files. Using multiple `.graphqls` files allows for modular schema definitions.
-    - **`schema.graphqls`**: The main GraphQL schema file that may import or reference other schema files.
+  - **`modules/`**: Each module corresponds to a specific feature or domain of the application.
+  
+    - **`repository/`**:
+      - **`**.repo.go`**: Repository implementations following the repository pattern. These files abstract data access logic, providing methods to interact with the data source (e.g., database queries).
+  
+    - **`service/`**:
+      - **`**.service.go`**: Service layer implementations containing business logic. Services orchestrate operations, apply business rules, and interact with repositories.
+  
+    - **`middleware/`**:
+      - **`**.mdlw.go`**: Middleware implementations. The naming convention uses abbreviations like `mdlw` to keep filenames concise. Examples include authentication middleware (`auth.mdlw.go`), logging middleware (`logging.mdlw.go`), etc.
 
-  - **`middlawares/`**:
-    - **`**.mdlw.go`**: Middleware implementations. The naming convention uses abbreviations like `mdlw` to keep filenames concise. Examples include authentication middleware (`auth.mdlw.go`), logging middleware (`logging.mdlw.go`), etc.
-
-  - **`models/`**:
-    - **`**.model.go`**: Defines data models representing entities in the application. Each model corresponds to a database table or a GraphQL type.
-    - **`models_gen.go`**: Generated code for models, possibly created by gqlgen or another tool, containing boilerplate code or type definitions.
-
-  - **`repository/`**:
-    - **`**.repo.go`**: Repository implementations following the repository pattern. These files abstract data access logic, providing methods to interact with the data source (e.g., database queries).
-
-  - **`resolver/`**:
-    - **`resolver.go`**: Sets up the root resolver, connecting the GraphQL schema to resolver implementations.
-    - **`schema.resolver.go`**: Generated resolver code that maps schema types and fields to resolver functions.
-    - **`**.resolver.go`**: Specific resolver implementations for different parts of the GraphQL schema, handling the logic for fetching and manipulating data.
-
-  - **`service/`**:
-    - **`**.service.go`**: Service layer implementations containing business logic. Services orchestrate operations, apply business rules, and interact with repositories.
+  - **`schema/`**: Contains everything related to GraphQL schemas and resolvers.
+  
+    - **`directives/`**:
+      - **`**.go`**: Custom directives for GraphQL schema to modify or extend the behavior of GraphQL operations.
+  
+    - **`gql/`**:
+      - **`**.graphqls`**: Individual GraphQL schema files. Using multiple `.graphqls` files allows for modular schema definitions.
+      - **`schema.graphqls`**: The main GraphQL schema file that may import or reference other schema files.
+  
+    - **`migration/`**:
+      - **`migration.go`**: Handles database migrations, ensuring that the database schema is up to date.
+  
+    - **`model/`**:
+      - **`**.model.go`**: Defines data models representing entities in the application. Each model corresponds to a database table or a GraphQL type.
+      - **`models_gen.go`**: Generated code for models, possibly created by gqlgen or another tool, containing boilerplate code or type definitions.
+  
+    - **`resolver/`**:
+      - **`resolver.go`**: Sets up the root resolver, connecting the GraphQL schema to resolver implementations.
+      - **`schema.resolver.go`**: Generated resolver code that maps schema types and fields to resolver functions.
+      - **`**.resolver.go`**: Specific resolver implementations for different parts of the GraphQL schema, handling the logic for fetching and manipulating data.
 
   - **`utils/`**:
     - **`**.util.go`**: Utility functions and helper methods used across the application, such as error handling, data formatting, etc.
@@ -128,6 +144,7 @@ To set up and run this project locally, follow these steps:
       DB_USER=youruser
       DB_PASSWORD=yourpassword
       DB_NAME=yourdb
+      JWT_SECRET=yoursecret
       ```
 
 3. **Install Dependencies**:
@@ -161,6 +178,7 @@ To set up and run this project locally, follow these steps:
     ```
 
 ## Usage
+
 
 To start the API server, run:
 

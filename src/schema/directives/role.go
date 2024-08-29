@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/99designs/gqlgen/graphql"
-	"github.com/diegofly91/apiturnos/src/middleware"
-	"github.com/diegofly91/apiturnos/src/model"
+	"github.com/diegofly91/apiturnos/src/modules/auth/middleware"
+	"github.com/diegofly91/apiturnos/src/schema/model"
 )
 
 func HasRole(ctx context.Context, obj interface{}, next graphql.Resolver, roles []model.Role) (interface{}, error) {

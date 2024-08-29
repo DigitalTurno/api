@@ -6,7 +6,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/diegofly91/apiturnos/src/model"
+	userService "github.com/diegofly91/apiturnos/src/modules/user/service"
+	"github.com/diegofly91/apiturnos/src/schema/model"
 	"github.com/diegofly91/apiturnos/src/utils"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -28,11 +29,11 @@ type AuthService interface {
 }
 
 type authService struct {
-	user UserService
+	user userService.UserService
 }
 
 func NewAuthService() AuthService {
-	user := NewUserService()
+	user := userService.NewUserService()
 	return &authService{user: user}
 }
 

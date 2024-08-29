@@ -1,8 +1,8 @@
 package service
 
 import (
-	"github.com/diegofly91/apiturnos/src/model"
-	"github.com/diegofly91/apiturnos/src/repository"
+	"github.com/diegofly91/apiturnos/src/modules/user/repository"
+	"github.com/diegofly91/apiturnos/src/schema/model"
 )
 
 type UserService interface {

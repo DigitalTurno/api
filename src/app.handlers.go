@@ -7,13 +7,15 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
-	"github.com/diegofly91/apiturnos/src/directives"
 	"github.com/diegofly91/apiturnos/src/generated"
-	"github.com/diegofly91/apiturnos/src/resolver"
+	"github.com/diegofly91/apiturnos/src/schema/directives"
+	"github.com/diegofly91/apiturnos/src/schema/migration"
+	"github.com/diegofly91/apiturnos/src/schema/resolver"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
 func AppHandles() *handler.Server {
+	migration.MigrateTable()
 	res := resolver.GraphResolver()
 	c := generated.Config{Resolvers: res}
 	c.Directives.Auth = directives.Auth
