@@ -1,6 +1,8 @@
 package service
 
 import (
+	"context"
+	"fmt"
 	"os"
 	"time"
 
@@ -21,7 +23,7 @@ func getJwtSecret() string {
 
 type AuthService interface {
 	Login(username, password string) (*model.Token, error)
-	GetUserFromToken(tokenString string) (*model.UserPayload, error)
+	JwtValidate(ctx context.Context, token string) (*jwt.Token, error)
 }
 
 type authService struct {
@@ -64,6 +66,7 @@ func generateJWT(user *model.User) (string, error) {
 		Id:       user.ID,
 		Username: user.Username,
 		Email:    user.Email,
+		Role:     user.Role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expirationTime), // Token válido por 24 horas
 		},
@@ -88,24 +91,11 @@ func parseJWT(tokenString string) (*jwt.Token, error) {
 	return token, nil
 }
 
-// funcion para obtener el usuario del token
-func (s *authService) GetUserFromToken(tokenString string) (*model.UserPayload, error) {
-	token, err := parseJWT(tokenString)
-	if err != nil {
-		return nil, err
-	}
-
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if !ok {
-		return nil, err
-	}
-
-	user := model.UserPayload{
-		Username: claims["sub"].(string),
-		Id:       int64(claims["id"].(float64)),
-		Email:    claims["email"].(string),
-		Role:     model.Role(claims["role"].(string)),
-		// Agrega más campos según sea necesario
-	}
-	return &user, nil
+func (s *authService) JwtValidate(ctx context.Context, token string) (*jwt.Token, error) {
+	return jwt.ParseWithClaims(token, &model.UserPayload{}, func(t *jwt.Token) (interface{}, error) {
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("there's a problem with the signing method")
+		}
+		return jwtSecret, nil
+	})
 }

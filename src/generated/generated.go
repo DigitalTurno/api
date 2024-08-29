@@ -49,6 +49,7 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
+	Auth    func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
 	HasRole func(ctx context.Context, obj interface{}, next graphql.Resolver, role model.Role) (res interface{}, err error)
 }
 
@@ -544,7 +545,7 @@ input LoginUser {
 }
 
 type QueryAuth {
-    userCurrent: UserPayload! @goField(forceResolver: true)
+    userCurrent: UserPayload! @goField(forceResolver: true) @auth
 }
 
 type MutationAuth {
@@ -566,6 +567,9 @@ type QueryProfile {
   forceResolver: Boolean
   name: String
 ) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
+
+# new directive
+directive @auth on FIELD_DEFINITION
 
 scalar Time
 
@@ -1723,8 +1727,28 @@ func (ec *executionContext) _QueryAuth_userCurrent(ctx context.Context, field gr
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.QueryAuth().UserCurrent(rctx, obj)
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.QueryAuth().UserCurrent(rctx, obj)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Auth == nil {
+				return nil, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, obj, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.UserPayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/diegofly91/apiturnos/src/model.UserPayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)

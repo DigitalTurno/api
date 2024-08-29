@@ -11,11 +11,14 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/diegofly91/apiturnos/src/directives"
 	"github.com/diegofly91/apiturnos/src/generated"
+	"github.com/diegofly91/apiturnos/src/middleware"
 	"github.com/diegofly91/apiturnos/src/migration"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 
 	"github.com/diegofly91/apiturnos/src/resolver"
+	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 )
 
@@ -26,16 +29,18 @@ func main() {
 		log.Fatal(err)
 	}
 	port := os.Getenv("PORT")
+	router := mux.NewRouter()
+	router.Use(middleware.AuthMiddleware)
 	res := resolver.GraphResolver()
-	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: res}))
+	c := generated.Config{Resolvers: res}
+	c.Directives.Auth = directives.Auth
+	srv := handler.NewDefaultServer(generated.NewExecutableSchema(c))
 	srv.SetErrorPresenter(func(ctx context.Context, e error) *gqlerror.Error {
 		err := graphql.DefaultErrorPresenter(ctx, e)
-
 		var myErr *gqlerror.Error
 		if errors.As(e, &myErr) {
 			err.Message = myErr.Message
 		}
-
 		return err
 	})
 	srv.AroundResponses(func(ctx context.Context, next graphql.ResponseHandler) *graphql.Response {
@@ -62,9 +67,9 @@ func main() {
 		}
 		return res
 	})
-	http.Handle("/", playground.Handler("Api DigitalTurno GraphQL", "/query"))
-	http.Handle("/query", srv)
+	router.Handle("/", playground.Handler("Api DigitalTurno GraphQL", "/query"))
+	router.Handle("/query", srv)
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	log.Fatal(http.ListenAndServe(":"+port, router))
 }

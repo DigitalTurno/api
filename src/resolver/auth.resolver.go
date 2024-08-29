@@ -19,7 +19,14 @@ func (r *mutationAuthResolver) LoginUser(ctx context.Context, obj *model.Mutatio
 
 // UserCurrent is the resolver for the userCurrent field.
 func (r *queryAuthResolver) UserCurrent(ctx context.Context, obj *model.QueryAuth) (*model.UserPayload, error) {
-	return nil, fmt.Errorf("not implemented")
+	type authString string
+	payload, ok := ctx.Value(authString("auth")).(*model.UserPayload)
+	if !ok {
+		return nil, fmt.Errorf("Access Denieds")
+	}
+	return payload, nil
+
+	//return nil, fmt.Errorf("not implemented")
 }
 
 // MutationAuth returns generated.MutationAuthResolver implementation.

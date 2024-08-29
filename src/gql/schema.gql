@@ -3,6 +3,9 @@ directive @goField(
   name: String
 ) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
 
+# new directive
+directive @auth on FIELD_DEFINITION
+
 scalar Time
 
 enum Status {

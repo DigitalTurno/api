@@ -15,7 +15,7 @@ input LoginUser {
 }
 
 type QueryAuth {
-    userCurrent: UserPayload! @goField(forceResolver: true)
+    userCurrent: UserPayload! @goField(forceResolver: true) @auth
 }
 
 type MutationAuth {
