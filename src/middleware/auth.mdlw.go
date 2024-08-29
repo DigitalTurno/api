@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/diegofly91/apiturnos/src/constants"
 	"github.com/diegofly91/apiturnos/src/model"
 	"github.com/diegofly91/apiturnos/src/service"
 )
@@ -29,7 +30,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 		}
 		customClaim, _ := validate.Claims.(*model.UserPayload)
 
-		ctx := context.WithValue(r.Context(), authString("auth"), customClaim)
+		ctx := context.WithValue(r.Context(), constants.TokenDataKey, customClaim)
 
 		r = r.WithContext(ctx)
 		next.ServeHTTP(w, r)
@@ -37,6 +38,6 @@ func AuthMiddleware(next http.Handler) http.Handler {
 }
 
 func CtxValue(ctx context.Context) *model.UserPayload {
-	raw, _ := ctx.Value(authString("auth")).(*model.UserPayload)
+	raw, _ := ctx.Value(constants.TokenDataKey).(*model.UserPayload)
 	return raw
 }
