@@ -6,11 +6,10 @@ package resolver
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/diegofly91/apiturnos/src/constants"
-	"github.com/diegofly91/apiturnos/src/generated"
-	"github.com/diegofly91/apiturnos/src/schema/model"
+	"apiturnos/src/constants"
+	"apiturnos/src/generated"
+	"apiturnos/src/schema/model"
 )
 
 // LoginUser is the resolver for the loginUser field.
@@ -20,10 +19,7 @@ func (r *mutationAuthResolver) LoginUser(ctx context.Context, obj *model.Mutatio
 
 // UserCurrent is the resolver for the userCurrent field.
 func (r *queryAuthResolver) UserCurrent(ctx context.Context, obj *model.QueryAuth) (*model.UserPayload, error) {
-	payload, ok := ctx.Value(constants.TokenDataKey).(*model.UserPayload)
-	if !ok {
-		return nil, fmt.Errorf("Access Denieds")
-	}
+	payload, _ := ctx.Value(constants.TokenDataKey).(*model.UserPayload)
 	return payload, nil
 }
 

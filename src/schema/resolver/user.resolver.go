@@ -7,8 +7,8 @@ package resolver
 import (
 	"context"
 
-	"github.com/diegofly91/apiturnos/src/generated"
-	"github.com/diegofly91/apiturnos/src/schema/model"
+	"apiturnos/src/generated"
+	"apiturnos/src/schema/model"
 )
 
 // CreateUser is the resolver for the createUser field.

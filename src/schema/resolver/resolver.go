@@ -1,8 +1,8 @@
 package resolver
 
 import (
-	auth "github.com/diegofly91/apiturnos/src/modules/auth/service"
-	user "github.com/diegofly91/apiturnos/src/modules/user/service"
+	auth "apiturnos/src/modules/auth/service"
+	user "apiturnos/src/modules/user/service"
 )
 
 type Resolver struct {

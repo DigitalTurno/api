@@ -1,4 +1,4 @@
-module github.com/diegofly91/apiturnos
+module apiturnos
 
 go 1.22.2
 

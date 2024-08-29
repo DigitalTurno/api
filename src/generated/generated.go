@@ -14,7 +14,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
-	"github.com/diegofly91/apiturnos/src/schema/model"
+	"apiturnos/src/schema/model"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -528,27 +528,31 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "../schema/gql/auth.gql", Input: `type Token {
+	{Name: "../schema/gql/auth.gql", Input: `""" Response authentication tokens """
+type Token {
     access_token: String!
 }
 
+""" UserPayload is the return type of properties the user in the context """
 type UserPayload {
     id: ID!
     username: String!
     email: String!
     role: Role! 
 }
-
+""" LoginUser is the input type user login """
 input LoginUser {
     username: String!
     password: String!
 }
-
+""" QueryAuth is the query type for authentication """
 type QueryAuth {
+    """ Query info context user act. @auth """
     userCurrent: UserPayload! @goField(forceResolver: true) @auth
 }
 
 type MutationAuth {
+    """ Mutation type allows fetching auth login. """
     loginUser(input: LoginUser!): Token! @goField(forceResolver: true)
 }`, BuiltIn: false},
 	{Name: "../schema/gql/profile.gql", Input: `type Profile {
@@ -569,7 +573,10 @@ type QueryProfile {
 ) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
 
 # new directive
+""" Directive to protect with authentication """
 directive @auth on FIELD_DEFINITION
+  
+""" Directive to protect with roles """
 directive @hasRole(roles: [Role!]) on FIELD_DEFINITION
 
 
@@ -582,20 +589,26 @@ enum Status {
 }
 
 type Query {
+    """ Query type allows fetching data about users. """
     user: QueryUser! @goField(forceResolver: true)
+    """ Query type allows fetching data about users profile. """
     profile: QueryProfile! @goField(forceResolver: true)
+    """ Query type allows fetching data about user info auth. """
     auth: QueryAuth! @goField(forceResolver: true)
 }
 
 
 type Mutation {
+  """ Mutation type allows fetching data about users. """
    user: MutationUser! @goField(forceResolver: true)
+    """ Mutation type allows fetching auth data. """
    auth: MutationAuth! @goField(forceResolver: true)
 }
 
 
 `, BuiltIn: false},
-	{Name: "../schema/gql/user.gql", Input: `type User {
+	{Name: "../schema/gql/user.gql", Input: `""" User is the object type for user """
+type User {
     id: ID!
     username: String!
     password: String!
@@ -605,25 +618,27 @@ type Mutation {
     createdAt: Time!
     updatedAt: Time!
 }
-
+""" Role is the enum type for user """
 enum Role {
-    ### SUPERUSER has all the permissions of the system ###
+    """ SUPERUSER has all the permissions of the system """
     SUPERUSER
-    ## ADMIN has all the permissions of the system except for the SUPERUSER ##
+    """ ADMIN has all the permissions of the system global of the company """
     ADMIN
-    ## ADVISER has the permissions to manage the users ##
+    """ ADVISER has the permissions to manage the users """
     ADVISER
-    ## GUEST has the permissions to read the data ##
+    """ GUEST has the permissions to read the data """
     GUEST
 }
-
+""" UserInput is the input type user """
 input UserInput {
     username: String!
     password: String!
     email: String!
 }
 
+""" QueryUser is the query type for user """
 type QueryUser {
+    """ Query info all users. @@hasRole(roles: [ADMIN, GUEST]) """
     users: [User] @goField(forceResolver: true) @hasRole(roles: [ADMIN, GUEST])
     getUserById(id: ID!): User! @goField(forceResolver: true)
 }
@@ -1752,7 +1767,7 @@ func (ec *executionContext) _QueryAuth_userCurrent(ctx context.Context, field gr
 		if data, ok := tmp.(*model.UserPayload); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/diegofly91/apiturnos/src/schema/model.UserPayload`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *apiturnos/src/schema/model.UserPayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1899,7 +1914,7 @@ func (ec *executionContext) _QueryUser_users(ctx context.Context, field graphql.
 		if data, ok := tmp.([]*model.User); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/diegofly91/apiturnos/src/schema/model.User`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*apiturnos/src/schema/model.User`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)

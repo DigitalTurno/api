@@ -4,7 +4,10 @@ directive @goField(
 ) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
 
 # new directive
+""" Directive to protect with authentication """
 directive @auth on FIELD_DEFINITION
+  
+""" Directive to protect with roles """
 directive @hasRole(roles: [Role!]) on FIELD_DEFINITION
 
 
@@ -17,14 +20,19 @@ enum Status {
 }
 
 type Query {
+    """ Query type allows fetching data about users. """
     user: QueryUser! @goField(forceResolver: true)
+    """ Query type allows fetching data about users profile. """
     profile: QueryProfile! @goField(forceResolver: true)
+    """ Query type allows fetching data about user info auth. """
     auth: QueryAuth! @goField(forceResolver: true)
 }
 
 
 type Mutation {
+  """ Mutation type allows fetching data about users. """
    user: MutationUser! @goField(forceResolver: true)
+    """ Mutation type allows fetching auth data. """
    auth: MutationAuth! @goField(forceResolver: true)
 }
 

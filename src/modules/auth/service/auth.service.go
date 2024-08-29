@@ -6,9 +6,9 @@ import (
 	"os"
 	"time"
 
-	userService "github.com/diegofly91/apiturnos/src/modules/user/service"
-	"github.com/diegofly91/apiturnos/src/schema/model"
-	"github.com/diegofly91/apiturnos/src/utils"
+	userService "apiturnos/src/modules/user/service"
+	"apiturnos/src/schema/model"
+	"apiturnos/src/utils"
 
 	"github.com/golang-jwt/jwt/v5"
 )

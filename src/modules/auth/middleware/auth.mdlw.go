@@ -6,12 +6,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/diegofly91/apiturnos/src/constants"
-	"github.com/diegofly91/apiturnos/src/modules/auth/service"
-	"github.com/diegofly91/apiturnos/src/schema/model"
+	"apiturnos/src/constants"
+	"apiturnos/src/modules/auth/service"
+	"apiturnos/src/schema/model"
 )
-
-type authString string
 
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -27,6 +25,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 		authService := service.NewAuthService()
 		validate, err := authService.JwtValidate(context.Background(), token)
 		if err != nil || !validate.Valid {
+
 			// Construir la estructura del error en formato JSON
 			errorResponse := map[string]interface{}{
 				"errors": []map[string]interface{}{

@@ -8,8 +8,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/diegofly91/apiturnos/src/generated"
-	"github.com/diegofly91/apiturnos/src/schema/model"
+	"apiturnos/src/generated"
+	"apiturnos/src/schema/model"
 )
 
 // GetProfileUserByID is the resolver for the getProfileUserById field.

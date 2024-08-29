@@ -1,23 +1,27 @@
+""" Response authentication tokens """
 type Token {
     access_token: String!
 }
 
+""" UserPayload is the return type of properties the user in the context """
 type UserPayload {
     id: ID!
     username: String!
     email: String!
     role: Role! 
 }
-
+""" LoginUser is the input type user login """
 input LoginUser {
     username: String!
     password: String!
 }
-
+""" QueryAuth is the query type for authentication """
 type QueryAuth {
+    """ Query info context user act. @auth """
     userCurrent: UserPayload! @goField(forceResolver: true) @auth
 }
 
 type MutationAuth {
+    """ Mutation type allows fetching auth login. """
     loginUser(input: LoginUser!): Token! @goField(forceResolver: true)
 }

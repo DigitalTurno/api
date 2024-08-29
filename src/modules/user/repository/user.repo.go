@@ -3,8 +3,9 @@ package repository
 import (
 	"fmt"
 
-	db "github.com/diegofly91/apiturnos/src/config"
-	"github.com/diegofly91/apiturnos/src/schema/model"
+	db "apiturnos/src/config"
+	"apiturnos/src/schema/model"
+
 	"gorm.io/gorm"
 )
 

@@ -3,7 +3,8 @@ package model
 import (
 	"time"
 
-	"github.com/diegofly91/apiturnos/src/utils"
+	"apiturnos/src/utils"
+
 	"gorm.io/gorm"
 )
 

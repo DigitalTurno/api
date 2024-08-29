@@ -5,12 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 
+	"apiturnos/src/generated"
+	"apiturnos/src/schema/directives"
+	"apiturnos/src/schema/migration"
+	"apiturnos/src/schema/resolver"
+
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
-	"github.com/diegofly91/apiturnos/src/generated"
-	"github.com/diegofly91/apiturnos/src/schema/directives"
-	"github.com/diegofly91/apiturnos/src/schema/migration"
-	"github.com/diegofly91/apiturnos/src/schema/resolver"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 

@@ -3,8 +3,9 @@ package directives
 import (
 	"context"
 
+	"apiturnos/src/modules/auth/middleware"
+
 	"github.com/99designs/gqlgen/graphql"
-	"github.com/diegofly91/apiturnos/src/modules/auth/middleware"
 )
 
 func Auth(ctx context.Context, obj interface{}, next graphql.Resolver) (interface{}, error) {

@@ -6,6 +6,7 @@ type Mutation struct {
 }
 
 type MutationAuth struct {
+	//  Mutation type allows fetching auth login.
 	LoginUser *Token `json:"loginUser"`
 }
 
@@ -18,7 +19,9 @@ type MutationUser struct {
 type Query struct {
 }
 
+// QueryAuth is the query type for authentication
 type QueryAuth struct {
+	//  Query info context user act. @auth
 	UserCurrent *UserPayload `json:"userCurrent"`
 }
 
@@ -26,7 +29,9 @@ type QueryProfile struct {
 	GetProfileUserByID *Profile `json:"getProfileUserById"`
 }
 
+// QueryUser is the query type for user
 type QueryUser struct {
+	//  Query info all users. @@hasRole(roles: [ADMIN, GUEST])
 	Users       []*User `json:"users,omitempty"`
 	GetUserByID *User   `json:"getUserById"`
 }

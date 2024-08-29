@@ -4,9 +4,10 @@ import (
 	"context"
 	"fmt"
 
+	"apiturnos/src/modules/auth/middleware"
+	"apiturnos/src/schema/model"
+
 	"github.com/99designs/gqlgen/graphql"
-	"github.com/diegofly91/apiturnos/src/modules/auth/middleware"
-	"github.com/diegofly91/apiturnos/src/schema/model"
 )
 
 func HasRole(ctx context.Context, obj interface{}, next graphql.Resolver, roles []model.Role) (interface{}, error) {

@@ -5,9 +5,10 @@ import (
 	"net/http"
 	"os"
 
+	"apiturnos/src"
+	"apiturnos/src/modules/auth/middleware"
+
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/diegofly91/apiturnos/src"
-	"github.com/diegofly91/apiturnos/src/modules/auth/middleware"
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
@@ -23,7 +24,7 @@ func main() {
 	router := mux.NewRouter()
 	router.Use(middleware.AuthMiddleware)
 	srv := src.AppHandles()
-	router.Handle("/", playground.Handler("Api DigitalTurno GraphQL", "/query"))
+	router.Handle("/", playground.ApolloSandboxHandler("Api DigitalTurno GraphQL", "/query"))
 	router.Handle("/query", srv)
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)

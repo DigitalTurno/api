@@ -1,3 +1,4 @@
+""" User is the object type for user """
 type User {
     id: ID!
     username: String!
@@ -8,25 +9,27 @@ type User {
     createdAt: Time!
     updatedAt: Time!
 }
-
+""" Role is the enum type for user """
 enum Role {
-    ### SUPERUSER has all the permissions of the system ###
+    """ SUPERUSER has all the permissions of the system """
     SUPERUSER
-    ## ADMIN has all the permissions of the system except for the SUPERUSER ##
+    """ ADMIN has all the permissions of the system global of the company """
     ADMIN
-    ## ADVISER has the permissions to manage the users ##
+    """ ADVISER has the permissions to manage the users """
     ADVISER
-    ## GUEST has the permissions to read the data ##
+    """ GUEST has the permissions to read the data """
     GUEST
 }
-
+""" UserInput is the input type user """
 input UserInput {
     username: String!
     password: String!
     email: String!
 }
 
+""" QueryUser is the query type for user """
 type QueryUser {
+    """ Query info all users. @@hasRole(roles: [ADMIN, GUEST]) """
     users: [User] @goField(forceResolver: true) @hasRole(roles: [ADMIN, GUEST])
     getUserById(id: ID!): User! @goField(forceResolver: true)
 }
