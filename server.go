@@ -34,6 +34,7 @@ func main() {
 	res := resolver.GraphResolver()
 	c := generated.Config{Resolvers: res}
 	c.Directives.Auth = directives.Auth
+	c.Directives.HasRole = directives.HasRole
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(c))
 	srv.SetErrorPresenter(func(ctx context.Context, e error) *gqlerror.Error {
 		err := graphql.DefaultErrorPresenter(ctx, e)

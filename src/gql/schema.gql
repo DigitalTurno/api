@@ -5,6 +5,8 @@ directive @goField(
 
 # new directive
 directive @auth on FIELD_DEFINITION
+directive @hasRole(role: Role!) on FIELD_DEFINITION
+
 
 scalar Time
 

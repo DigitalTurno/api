@@ -570,6 +570,8 @@ type QueryProfile {
 
 # new directive
 directive @auth on FIELD_DEFINITION
+directive @hasRole(role: Role!) on FIELD_DEFINITION
+
 
 scalar Time
 
@@ -593,9 +595,7 @@ type Mutation {
 
 
 `, BuiltIn: false},
-	{Name: "../gql/user.gql", Input: `directive @hasRole(role: Role!) on FIELD_DEFINITION
-
-type User {
+	{Name: "../gql/user.gql", Input: `type User {
     id: ID!
     username: String!
     password: String!
@@ -620,7 +620,7 @@ input UserInput {
 }
 
 type QueryUser {
-    users: [User] @goField(forceResolver: true)
+    users: [User] @goField(forceResolver: true) @hasRole(role: ADMIN)
     getUserById(id: ID!): User! @goField(forceResolver: true)
 }
 
@@ -1870,8 +1870,32 @@ func (ec *executionContext) _QueryUser_users(ctx context.Context, field graphql.
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.QueryUser().Users(rctx, obj)
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.QueryUser().Users(rctx, obj)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2githubᚗcomᚋdiegofly91ᚋapiturnosᚋsrcᚋmodelᚐRole(ctx, "ADMIN")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, obj, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*model.User); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/diegofly91/apiturnos/src/model.User`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
