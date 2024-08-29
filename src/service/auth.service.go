@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/diegofly91/apiturnos/src/model"
+	"github.com/diegofly91/apiturnos/src/utils"
 
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -39,7 +40,11 @@ func (s *authService) Login(username, password string) (*model.Token, error) {
 	user, err := s.user.FindUserByUsername(username)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("invalid username or password")
+	}
+	comparedPassword := utils.ComparePassword(user.Password, password)
+	if comparedPassword != nil {
+		return nil, fmt.Errorf("invalid username or password")
 	}
 	// Generate JWT
 	token, err := generateJWT(user)

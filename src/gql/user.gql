@@ -10,9 +10,13 @@ type User {
 }
 
 enum Role {
+    ### SUPERUSER has all the permissions of the system ###
     SUPERUSER
+    ## ADMIN has all the permissions of the system except for the SUPERUSER ##
     ADMIN
+    ## ADVISER has the permissions to manage the users ##
     ADVISER
+    ## GUEST has the permissions to read the data ##
     GUEST
 }
 
@@ -23,7 +27,7 @@ input UserInput {
 }
 
 type QueryUser {
-    users: [User] @goField(forceResolver: true) @hasRole(role: ADMIN)
+    users: [User] @goField(forceResolver: true) @hasRole(roles: [ADMIN, GUEST])
     getUserById(id: ID!): User! @goField(forceResolver: true)
 }
 

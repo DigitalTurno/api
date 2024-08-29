@@ -1,29 +1,20 @@
-package main
+package src
 
 import (
-	"log"
-	"net/http"
-	"os"
+	"context"
+	"encoding/json"
+	"errors"
 
-	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/diegofly91/apiturnos/src"
-	"github.com/diegofly91/apiturnos/src/middleware"
-	"github.com/diegofly91/apiturnos/src/migration"
-
-	"github.com/gorilla/mux"
-	"github.com/joho/godotenv"
+	"github.com/99designs/gqlgen/graphql"
+	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/diegofly91/apiturnos/src/directives"
+	"github.com/diegofly91/apiturnos/src/generated"
+	"github.com/diegofly91/apiturnos/src/resolver"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
-func main() {
-	migration.MigrateTable()
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Fatal(err)
-	}
-	port := os.Getenv("PORT")
-	router := mux.NewRouter()
-	router.Use(middleware.AuthMiddleware)
-	/*res := resolver.GraphResolver()
+func AppHandles() *handler.Server {
+	res := resolver.GraphResolver()
 	c := generated.Config{Resolvers: res}
 	c.Directives.Auth = directives.Auth
 	c.Directives.HasRole = directives.HasRole
@@ -51,20 +42,16 @@ func main() {
 				if _, ok := newData["directives"]; ok {
 					return res
 				}
+				var err error
 				res.Data, err = json.Marshal(newData)
 				if err != nil {
 					return res
 				}
+
 			}
 			break // Asumimos que solo hay un campo, por lo tanto, salimos del bucle
 		}
 		return res
 	})
-	*/
-	srv := src.AppHandles()
-	router.Handle("/", playground.Handler("Api DigitalTurno GraphQL", "/query"))
-	router.Handle("/query", srv)
-
-	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
-	log.Fatal(http.ListenAndServe(":"+port, router))
+	return srv
 }

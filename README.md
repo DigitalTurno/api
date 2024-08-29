@@ -37,10 +37,13 @@ api/
 ├── .env
 ├── server.go
 └── src/
+    ├── app.handlers.go
     ├── config/
     |   └── database.go
     ├── generate/
     |   └── generate.go
+    ├── directives/
+    |   └── **.go
     ├── gql/
     |   ├── **.graphqls
     |   └── schema.graphqls

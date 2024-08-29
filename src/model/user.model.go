@@ -3,7 +3,7 @@ package model
 import (
 	"time"
 
-	"golang.org/x/crypto/bcrypt"
+	"github.com/diegofly91/apiturnos/src/utils"
 	"gorm.io/gorm"
 )
 
@@ -41,10 +41,11 @@ type UserInput struct {
 }
 
 func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
+
+	hashedPassword, err := utils.HashPassword(u.Password)
 	if err != nil {
 		return err
 	}
-	u.Password = string(hashedPassword)
+	u.Password = hashedPassword
 	return nil
 }
