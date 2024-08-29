@@ -29,13 +29,11 @@ func AppHandles() *handler.Server {
 	})
 	srv.AroundResponses(func(ctx context.Context, next graphql.ResponseHandler) *graphql.Response {
 		res := next(ctx)
-
 		// Deserializar el json.RawMessage a un mapa
 		var data map[string]interface{}
 		if err := json.Unmarshal(res.Data, &data); err != nil {
 			return res
 		}
-
 		for _, v := range data {
 			// Asegurarse de que v es del tipo esperado
 			if newData, ok := v.(map[string]interface{}); ok {
@@ -47,7 +45,6 @@ func AppHandles() *handler.Server {
 				if err != nil {
 					return res
 				}
-
 			}
 			break // Asumimos que solo hay un campo, por lo tanto, salimos del bucle
 		}
