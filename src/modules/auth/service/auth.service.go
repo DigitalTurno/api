@@ -72,7 +72,6 @@ func generateJWT(user *model.User) (string, error) {
 	claims := &model.UserPayload{
 		Id:       strconv.FormatInt(user.ID, 10),
 		Username: user.Username,
-		Email:    user.Email,
 		Role:     user.Role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expirationTime), // Token válido por 24 horas

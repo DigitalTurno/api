@@ -45,7 +45,6 @@ func (r *userRepository) CreateUser(inputUser *model.UserInput) (*model.User, er
 	var user model.User = model.User{
 		Username: inputUser.Username,
 		Password: inputUser.Password,
-		Email:    inputUser.Email,
 	}
 	if err := r.db.Create(&user).Error; err != nil {
 		return nil, err
@@ -94,7 +93,6 @@ func (r *userRepository) Update(id string, input *model.UserInput) (*model.User,
 	}
 
 	user.Username = input.Username
-	user.Email = input.Email
 	if err := r.db.Save(user).Error; err != nil {
 		return nil, err
 	}

@@ -25,7 +25,6 @@ func AuthMiddleware(next http.Handler) http.Handler {
 		authService := service.NewAuthService()
 		validate, err := authService.JwtValidate(context.Background(), token)
 		if err != nil || !validate.Valid {
-
 			// Construir la estructura del error en formato JSON
 			errorResponse := map[string]interface{}{
 				"errors": []map[string]interface{}{

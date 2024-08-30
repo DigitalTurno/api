@@ -9,6 +9,7 @@ type Profile struct {
 	UserID    int64     `gorm:"not null;index" json:"userId"` // Configurar como clave foránea y agregar índice
 	Firstname *string   `gorm:"type:varchar(50); null;" json:"firstname" validate:"max=50"`
 	Lastname  *string   `gorm:"type:varchar(50); null;" json:"lastname" validate:"max=50"`
+	Email     string    `gorm:"type:varchar(100);not null;unique" json:"email" validate:"required,email"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 	// Relación con el modelo User

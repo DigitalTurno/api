@@ -9,7 +9,6 @@ type UserPayload struct {
 	Username string `json:"username"`
 	Id       string `json:"id"`
 	Role     Role   `json:"role"`
-	Email    string `json:"email"`
 	jwt.RegisteredClaims
 }
 

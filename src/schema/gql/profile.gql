@@ -1,6 +1,7 @@
 type Profile {
     id: ID!
     userId: ID!
+    email: String!
     firstname: String
     lastname: String
     createdAt: Time!

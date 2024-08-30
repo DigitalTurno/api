@@ -7,7 +7,6 @@ type Token {
 type UserPayload {
     id: ID!
     username: String!
-    email: String!
     role: Role! 
 }
 """ LoginUser is the input type user login """

@@ -16,11 +16,6 @@ func (r *mutationUserResolver) CreateUser(ctx context.Context, obj *model.Mutati
 	return r.userService.CreateUser(input)
 }
 
-// UpdateUser is the resolver for the updateUser field.
-func (r *mutationUserResolver) UpdateUser(ctx context.Context, obj *model.MutationUser, id string, input *model.UserInput) (*model.User, error) {
-	return r.userService.Update(id, input)
-}
-
 // UpdatePassword is the resolver for the updatePassword field.
 func (r *mutationUserResolver) UpdatePassword(ctx context.Context, obj *model.MutationUser, password string) (*model.User, error) {
 	payload, _ := ctx.Value(constants.TokenDataKey).(*model.UserPayload)

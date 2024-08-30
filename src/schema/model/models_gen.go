@@ -12,7 +12,6 @@ type MutationAuth struct {
 
 type MutationUser struct {
 	CreateUser     *User `json:"createUser"`
-	UpdateUser     *User `json:"updateUser"`
 	UpdatePassword *User `json:"updatePassword"`
 	DeleteUser     *User `json:"deleteUser"`
 }
