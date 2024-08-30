@@ -12,10 +12,11 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
-func AppHandles() *handler.Server {
+func PlaygroundHandler() *handler.Server {
 	migration.MigrateTable()
 	res := resolver.GraphResolver()
 	c := generated.Config{Resolvers: res}
@@ -53,5 +54,6 @@ func AppHandles() *handler.Server {
 		}
 		return res
 	})
+	srv.AddTransport(transport.Websocket{})
 	return srv
 }

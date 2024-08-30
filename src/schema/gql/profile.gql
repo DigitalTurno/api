@@ -1,6 +1,6 @@
 type Profile {
     id: ID!
-    userId: ID! @goField(name: "user_id")
+    userId: ID!
     firstname: String
     lastname: String
     createdAt: Time!

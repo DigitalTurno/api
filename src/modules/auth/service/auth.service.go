@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 
 	userService "apiturnos/src/modules/user/service"
@@ -69,7 +70,7 @@ func generateJWT(user *model.User) (string, error) {
 
 	// Create the JWT claims, which includes the username and expiry time
 	claims := &model.UserPayload{
-		Id:       user.ID,
+		Id:       strconv.FormatInt(user.ID, 10),
 		Username: user.Username,
 		Email:    user.Email,
 		Role:     user.Role,

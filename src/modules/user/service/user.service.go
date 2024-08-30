@@ -11,6 +11,7 @@ type UserService interface {
 	FindById(id string) (*model.User, error)
 	FindUserByUsername(username string) (*model.User, error)
 	Update(id string, input *model.UserInput) (*model.User, error)
+	UpdatePassword(id string, password string) (*model.User, error)
 	DeleteUser(userId string) (*model.User, error)
 }
 
@@ -45,4 +46,8 @@ func (s *userService) Update(id string, input *model.UserInput) (*model.User, er
 
 func (s *userService) DeleteUser(userId string) (*model.User, error) {
 	return s.repo.Deleted(userId)
+}
+
+func (s *userService) UpdatePassword(id string, password string) (*model.User, error) {
+	return s.repo.UpdatePassword(id, password)
 }

@@ -37,5 +37,6 @@ type QueryUser {
 type MutationUser {
    createUser(input: UserInput): User! @goField(forceResolver: true)
    updateUser(id: ID!, input: UserInput): User! @goField(forceResolver: true)
+   updatePassword(password: String!): User! @goField(forceResolver: true) @auth
    deleteUser(id: ID!): User! @goField(forceResolver: true)
 }

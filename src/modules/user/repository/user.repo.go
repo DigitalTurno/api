@@ -14,6 +14,7 @@ type UserRepository interface {
 	FindAll() ([]*model.User, error)
 	FindById(id string) (*model.User, error)
 	FindUserByUsername(username string) (*model.User, error)
+	UpdatePassword(id string, password string) (*model.User, error)
 	Update(id string, input *model.UserInput) (*model.User, error)
 	Deleted(id string) (*model.User, error)
 }
@@ -72,6 +73,18 @@ func (r *userRepository) FindById(id string) (*model.User, error) {
 		return nil, fmt.Errorf("user not found")
 	}
 	return &user, nil
+}
+
+func (r *userRepository) UpdatePassword(id string, password string) (*model.User, error) {
+	user, err := r.FindById(id)
+	if err != nil {
+		return nil, err
+	}
+	user.Password = password
+	if err := r.db.Save(user).Error; err != nil {
+		return nil, err
+	}
+	return user, nil
 }
 
 func (r *userRepository) Update(id string, input *model.UserInput) (*model.User, error) {
