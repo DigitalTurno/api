@@ -1,6 +1,7 @@
 """ Response authentication tokens """
 type Token {
     access_token: String!
+    refresh_token: String!
 }
 
 """ UserPayload is the return type of properties the user in the context """

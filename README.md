@@ -63,11 +63,12 @@ api/
     |      |   └── models_gen.go
     |      ├── resolver/
     |      |   ├── resolver.go
-    |      |   ├── schema.resolver.go        
+    |      |   ├── schema.resolver.go
     |      |   └── **.resolver.go
     └── utils/
         └── **.util.go
 ```
+
 ### Description of Directories and Files
 
 - **`gqlgen.yml`**: Configuration file for gqlgen. It defines schema paths, resolver mappings, and code generation settings.
@@ -83,102 +84,118 @@ api/
   - **`app.handlers.go`**: Handles the main application routes and request handling logic.
 
   - **`config/`**:
+
     - **`database.go`**: Handles database connection setup, loading configurations, and initializing database clients.
 
   - **`generate/`**:
+
     - **`generate.go`**: Contains scripts or commands related to code generation, such as generating resolvers or models using gqlgen.
 
   - **`modules/`**: Each module corresponds to a specific feature or domain of the application.
-  
+
     - **`repository/`**:
-      - **`**.repo.go`**: Repository implementations following the repository pattern. These files abstract data access logic, providing methods to interact with the data source (e.g., database queries).
-  
+
+      - **`**.repo.go`\*\*: Repository implementations following the repository pattern. These files abstract data access logic, providing methods to interact with the data source (e.g., database queries).
+
     - **`service/`**:
-      - **`**.service.go`**: Service layer implementations containing business logic. Services orchestrate operations, apply business rules, and interact with repositories.
-  
+
+      - **`**.service.go`\*\*: Service layer implementations containing business logic. Services orchestrate operations, apply business rules, and interact with repositories.
+
     - **`middleware/`**:
       - **`**.mdlw.go`**: Middleware implementations. The naming convention uses abbreviations like `mdlw` to keep filenames concise. Examples include authentication middleware (`auth.mdlw.go`), logging middleware (`logging.mdlw.go`), etc.
 
   - **`schema/`**: Contains everything related to GraphQL schemas and resolvers.
-  
+
     - **`directives/`**:
-      - **`**.go`**: Custom directives for GraphQL schema to modify or extend the behavior of GraphQL operations.
-  
+
+      - **`**.go`\*\*: Custom directives for GraphQL schema to modify or extend the behavior of GraphQL operations.
+
     - **`gql/`**:
+
       - **`**.graphqls`**: Individual GraphQL schema files. Using multiple `.graphqls` files allows for modular schema definitions.
       - **`schema.graphqls`**: The main GraphQL schema file that may import or reference other schema files.
-  
+
     - **`migration/`**:
+
       - **`migration.go`**: Handles database migrations, ensuring that the database schema is up to date.
-  
+
     - **`model/`**:
-      - **`**.model.go`**: Defines data models representing entities in the application. Each model corresponds to a database table or a GraphQL type.
+
+      - **`**.model.go`\*\*: Defines data models representing entities in the application. Each model corresponds to a database table or a GraphQL type.
       - **`models_gen.go`**: Generated code for models, possibly created by gqlgen or another tool, containing boilerplate code or type definitions.
-  
+
     - **`resolver/`**:
       - **`resolver.go`**: Sets up the root resolver, connecting the GraphQL schema to resolver implementations.
       - **`schema.resolver.go`**: Generated resolver code that maps schema types and fields to resolver functions.
-      - **`**.resolver.go`**: Specific resolver implementations for different parts of the GraphQL schema, handling the logic for fetching and manipulating data.
+      - **`**.resolver.go`\*\*: Specific resolver implementations for different parts of the GraphQL schema, handling the logic for fetching and manipulating data.
 
   - **`utils/`**:
-    - **`**.util.go`**: Utility functions and helper methods used across the application, such as error handling, data formatting, etc.
+    - **`**.util.go`\*\*: Utility functions and helper methods used across the application, such as error handling, data formatting, etc.
 
 ## Setup and Installation
 
 To set up and run this project locally, follow these steps:
 
-1. **Clone the Repository**:
+1.  **Clone the Repository**:
 
     ```bash
     git clone https://github.com/yourusername/yourproject.git
     cd yourproject
     ```
 
-2. **Set Up Environment Variables**:
+2.  **Set Up Environment Variables**:
 
-    - Create a `.env` file in the root directory and populate it with necessary environment variables. Example:
+        - Create a `.env` file in the root directory and populate it with necessary environment variables. Example:
 
-      ```
-      DB_HOST=localhost
-      DB_PORT=5432
-      DB_USER=youruser
-      DB_PASSWORD=yourpassword
-      DB_NAME=yourdb
-      JWT_SECRET=yoursecret
-      ```
+          ```
+         ### Database configuration variables ###
+
+          PORT = 3000
+          DB_NAME = goweb_db
+          DB_USER = root
+          DB_PASSWORD = password
+          DB_HOST = localhost
+          DB_PORT = 3306
+
+        ### Secret application key ###
+          JWT_SECRET = hashsecret
+          JWT_EXPIRATION_SECRET = 30m
+          JWT_REFRESH_SECRET = hashsecret-refresh
+          JWT_EXPIRATION_SECRET_REFRESH = 30d
+          JWT_EXPIRATION_SECRET_EMAIL = 15m
+```
 
 3. **Install Dependencies**:
 
-    Ensure you have Go installed (version 1.16 or higher is recommended). Then run:
+   Ensure you have Go installed (version 1.16 or higher is recommended). Then run:
 
-    ```bash
-    go mod download
-    ```
+   ```bash
+   go mod download
+   ```
 
 4. **Generate GraphQL Code**:
 
-    Use gqlgen to generate the necessary GraphQL code:
+   Use gqlgen to generate the necessary GraphQL code:
 
-    ```bash
-    go run github.com/99designs/gqlgen generate
-    ```
+   ```bash
+   go run github.com/99designs/gqlgen generate
+   ```
 
-    Alternatively, if you have a custom generate script:
+   Alternatively, if you have a custom generate script:
 
-    ```bash
-    go run src/generate/generate.go
-    ```
+   ```bash
+   go run src/generate/generate.go
+   ```
 
 5. **Build the Application** (Optional):
 
-    To build the application binary:
+   To build the application binary:
 
-    ```bash
-    go build -o api server.go
-    ```
+   ```bash
+   go build -o api server.go
+   ```
 
 ## Usage
-
 
 To start the API server, run:
 
@@ -202,21 +219,21 @@ Contributions are welcome! To contribute to this project, please follow these st
 
 2. **Create a Feature Branch**:
 
-    ```bash
-    git checkout -b feature/your-feature-name
-    ```
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
 
 3. **Commit Your Changes**:
 
-    ```bash
-    git commit -m "Add feature: your feature description"
-    ```
+   ```bash
+   git commit -m "Add feature: your feature description"
+   ```
 
 4. **Push to the Branch**:
 
-    ```bash
-    git push origin feature/your-feature-name
-    ```
+   ```bash
+   git push origin feature/your-feature-name
+   ```
 
 5. **Open a Pull Request**: Navigate to the repository on GitHub and open a pull request to merge your changes.
 

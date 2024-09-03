@@ -14,7 +14,6 @@ import (
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		token := r.Header.Get("Authorization")
-
 		if token == "" {
 			next.ServeHTTP(w, r)
 			return
@@ -23,7 +22,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 		token = token[len(bearer):]
 
 		authService := service.NewAuthService()
-		validate, err := authService.JwtValidate(context.Background(), token)
+		validate, err := authService.JwtValidate(context.Background(), token, constants.TypeToken("TOKEN"))
 		if err != nil || !validate.Valid {
 			// Construir la estructura del error en formato JSON
 			errorResponse := map[string]interface{}{
