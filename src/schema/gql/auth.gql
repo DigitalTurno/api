@@ -8,7 +8,8 @@ type Token {
 type UserPayload {
     id: ID!
     username: String!
-    role: Role! 
+    role: Role!
+    expiration: Time!
 }
 """ LoginUser is the input type user login """
 input LoginUser {

@@ -1,14 +1,17 @@
 package model
 
 import (
+	"time"
+
 	"github.com/golang-jwt/jwt/v5"
 )
 
 // CustomClaims define las reclamaciones personalizadas que incluyen los campos adicionales del modelo User
 type UserPayload struct {
-	Username string `json:"username"`
-	Id       string `json:"id"`
-	Role     Role   `json:"role"`
+	Username   string    `json:"username"`
+	Id         string    `json:"id"`
+	Role       Role      `json:"role"`
+	Expiration time.Time `json:"expiration"`
 	jwt.RegisteredClaims
 }
 

@@ -41,6 +41,7 @@ func getJwtSecret() Secrets {
 type AuthService interface {
 	Login(username, password string) (*model.Token, error)
 	JwtValidate(ctx context.Context, token string, typeToken constants.TypeToken) (*jwt.Token, error)
+	GenerateJWT(user *model.UserPayload) (string, error)
 }
 
 type authService struct {
@@ -87,9 +88,10 @@ func generateJWT(user *model.User, expiration string, secret string) (string, er
 	expirationTime := time.Now().Add(duration)
 	// Create the JWT claims, which includes the username and expiry time
 	claims := &model.UserPayload{
-		Id:       strconv.FormatInt(user.ID, 10),
-		Username: user.Username,
-		Role:     user.Role,
+		Id:         strconv.FormatInt(user.ID, 10),
+		Username:   user.Username,
+		Role:       user.Role,
+		Expiration: expirationTime,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expirationTime), //
 		},
@@ -124,4 +126,29 @@ func (s *authService) JwtValidate(ctx context.Context, token string, typeToken c
 	}
 
 	return tokenClaims, nil
+}
+
+func (s *authService) GenerateJWT(userPayload *model.UserPayload) (string, error) {
+	duration, err := time.ParseDuration(secrets.JWTExpirationSecret)
+	if err != nil {
+		return "", fmt.Errorf("error al parsear duración: %v", err)
+	}
+	expirationTime := time.Now().Add(duration)
+
+	claims := &model.UserPayload{
+		Username: userPayload.Username,
+		Id:       userPayload.Id,
+		Role:     userPayload.Role,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(expirationTime),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString([]byte(secrets.JWTSecret))
+	if err != nil {
+		return "", err
+	}
+
+	return tokenString, nil
 }

@@ -114,9 +114,10 @@ type ComplexityRoot struct {
 	}
 
 	UserPayload struct {
-		Id       func(childComplexity int) int
-		Role     func(childComplexity int) int
-		Username func(childComplexity int) int
+		Expiration func(childComplexity int) int
+		Id         func(childComplexity int) int
+		Role       func(childComplexity int) int
+		Username   func(childComplexity int) int
 	}
 }
 
@@ -400,6 +401,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.Username(childComplexity), true
 
+	case "UserPayload.expiration":
+		if e.complexity.UserPayload.Expiration == nil {
+			break
+		}
+
+		return e.complexity.UserPayload.Expiration(childComplexity), true
+
 	case "UserPayload.id":
 		if e.complexity.UserPayload.Id == nil {
 			break
@@ -538,7 +546,8 @@ type Token {
 type UserPayload {
     id: ID!
     username: String!
-    role: Role! 
+    role: Role!
+    expiration: Time!
 }
 """ LoginUser is the input type user login """
 input LoginUser {
@@ -1848,6 +1857,8 @@ func (ec *executionContext) fieldContext_QueryAuth_userCurrent(_ context.Context
 				return ec.fieldContext_UserPayload_username(ctx, field)
 			case "role":
 				return ec.fieldContext_UserPayload_role(ctx, field)
+			case "expiration":
+				return ec.fieldContext_UserPayload_expiration(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type UserPayload", field.Name)
 		},
@@ -2601,6 +2612,50 @@ func (ec *executionContext) fieldContext_UserPayload_role(_ context.Context, fie
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Role does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserPayload_expiration(ctx context.Context, field graphql.CollectedField, obj *model.UserPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserPayload_expiration(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Expiration, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserPayload_expiration(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
 		},
 	}
 	return fc, nil
@@ -5281,6 +5336,11 @@ func (ec *executionContext) _UserPayload(ctx context.Context, sel ast.SelectionS
 			}
 		case "role":
 			out.Values[i] = ec._UserPayload_role(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "expiration":
+			out.Values[i] = ec._UserPayload_expiration(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

@@ -22,7 +22,8 @@ func main() {
 	}
 	port := os.Getenv("PORT")
 	router := mux.NewRouter()
-	router.Use(middleware.AuthMiddleware)
+	authMiddleware := middleware.NewAuthMiddleware()
+	router.Use(authMiddleware.Auth)
 	srv := src.PlaygroundHandler()
 	router.Handle("/", playground.ApolloSandboxHandler("Api DigitalTurno GraphQL", "/query"))
 	router.Handle("/query", srv)
