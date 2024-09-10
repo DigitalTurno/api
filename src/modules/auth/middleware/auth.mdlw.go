@@ -27,6 +27,7 @@ func (am *AuthMiddleware) Auth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
 		refreshToken := r.Header.Get("Refresh-Token")
+
 		token := extractToken(authHeader)
 		if token == "" {
 			next.ServeHTTP(w, r)
@@ -36,7 +37,6 @@ func (am *AuthMiddleware) Auth(next http.Handler) http.Handler {
 		claims, err := am.authService.JwtValidate(context.Background(), token, constants.TypeToken("TOKEN"))
 		if err != nil || !claims.Valid {
 			if refreshToken != "" {
-				fmt.Println("JWT inválido, intentando validar el refresh token...")
 				token = extractToken(refreshToken)
 				refreshClaims, err := am.authService.JwtValidate(context.Background(), token, constants.TypeToken("REFRESH"))
 
@@ -56,7 +56,9 @@ func (am *AuthMiddleware) Auth(next http.Handler) http.Handler {
 				}
 
 				// Devolver el nuevo token JWT en el encabezado
-				w.Header().Set("Authorization", "Bearer "+newToken)
+				w.Header().Set("auth-refresh", "Bearer "+newToken)
+				errorResponse(w, fmt.Errorf("Update token JWT"))
+				return
 
 			} else {
 				errorResponse(w, err)

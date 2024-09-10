@@ -9,4 +9,5 @@ func MigrateTable() {
 	db := db.Database
 	db.AutoMigrate(&model.User{})
 	db.AutoMigrate(&model.Profile{})
+	db.AutoMigrate(&model.UserRefreshToken{})
 }

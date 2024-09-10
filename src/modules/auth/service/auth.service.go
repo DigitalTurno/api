@@ -8,9 +8,12 @@ import (
 	"time"
 
 	"apiturnos/src/constants"
+	"apiturnos/src/modules/auth/repository"
 	userService "apiturnos/src/modules/user/service"
 	"apiturnos/src/schema/model"
 	"apiturnos/src/utils"
+
+	"github.com/99designs/gqlgen/graphql"
 
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -39,39 +42,59 @@ func getJwtSecret() Secrets {
 }
 
 type AuthService interface {
-	Login(username, password string) (*model.Token, error)
+	Login(ctx context.Context, input model.LoginUser) (*model.Token, error)
 	JwtValidate(ctx context.Context, token string, typeToken constants.TypeToken) (*jwt.Token, error)
 	GenerateJWT(user *model.UserPayload) (string, error)
 }
 
 type authService struct {
 	user userService.UserService
+	auth repository.AuthRepository
 }
 
 func NewAuthService() AuthService {
 	user := userService.NewUserService()
-	return &authService{user: user}
+	auth := repository.NewAuthRepository()
+	return &authService{user: user, auth: auth}
 }
 
-func (s *authService) Login(username, password string) (*model.Token, error) {
-	user, err := s.user.FindUserByUsername(username)
+func (s *authService) Login(ctx context.Context, input model.LoginUser) (*model.Token, error) {
+	req := graphql.GetOperationContext(ctx)
+	userAgent := req.Headers.Get("User-Agent")
+	user, err := s.user.FindUserByUsername(input.Username)
 	if err != nil {
 		return nil, fmt.Errorf("invalid username or password")
 	}
-	comparedPassword := utils.ComparePassword(user.Password, password)
+	comparedPassword := utils.ComparePassword(user.Password, input.Password)
 	if comparedPassword != nil {
 		return nil, fmt.Errorf("invalid username or password")
 	}
+
 	// Generate JWT
 	AccessToken, err := generateJWT(user, secrets.JWTExpirationSecret, secrets.JWTSecret)
 
 	if err != nil {
 		return nil, err
 	}
+	existingToken, err := s.auth.GetTokenForUserAndUserAgent(user.ID, userAgent)
+	if err != nil {
+		return nil, err
+	}
+	if existingToken != nil {
+		return &model.Token{
+			AccessToken:  AccessToken,
+			RefreshToken: existingToken.RefreshToken,
+		}, nil
+	}
+
 	RefreshToken, err := generateJWT(user, secrets.JWTExpirationSecretRefresh, secrets.JWTSecretRefresh)
 	if err != nil {
 		return nil, err
 	}
+	// Obtener el User-Agent desde los headers
+
+	duration, _ := time.ParseDuration(secrets.JWTExpirationSecretRefresh)
+	s.auth.Create(user.ID, RefreshToken, userAgent, time.Now().Add(duration))
 
 	return &model.Token{
 		AccessToken:  AccessToken,
@@ -108,6 +131,7 @@ func generateJWT(user *model.User, expiration string, secret string) (string, er
 }
 
 func (s *authService) JwtValidate(ctx context.Context, token string, typeToken constants.TypeToken) (*jwt.Token, error) {
+
 	secret := ""
 	switch typeToken {
 	case constants.TypeToken("TOKEN"):
