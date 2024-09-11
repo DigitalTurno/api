@@ -8,15 +8,30 @@ import (
 	"apiturnos/src/generated"
 	"apiturnos/src/schema/model"
 	"context"
-	"fmt"
 )
 
+// CreateProfileUser is the resolver for the createProfileUser field.
+func (r *mutationProfileResolver) CreateProfileUser(ctx context.Context, obj *model.MutationProfile, userID string, input model.ProfileInput) (*model.Profile, error) {
+	return r.profileService.CreateProfile(userID, input)
+}
+
+// UpdateProfileUser is the resolver for the updateProfileUser field.
+func (r *mutationProfileResolver) UpdateProfileUser(ctx context.Context, obj *model.MutationProfile, userID string, input model.ProfileInput) (*model.Profile, error) {
+	return r.profileService.UpdateProfile(userID, input)
+}
+
 // GetProfileUserByID is the resolver for the getProfileUserById field.
-func (r *queryProfileResolver) GetProfileUserByID(ctx context.Context, obj *model.QueryProfile, userID int) (*model.Profile, error) {
-	panic(fmt.Errorf("not implemented: GetProfileUserByID - getProfileUserById"))
+func (r *queryProfileResolver) GetProfileUserByID(ctx context.Context, obj *model.QueryProfile, userID string) (*model.Profile, error) {
+	return r.profileService.GetProfileByUserId(userID)
+}
+
+// MutationProfile returns generated.MutationProfileResolver implementation.
+func (r *Resolver) MutationProfile() generated.MutationProfileResolver {
+	return &mutationProfileResolver{r}
 }
 
 // QueryProfile returns generated.QueryProfileResolver implementation.
 func (r *Resolver) QueryProfile() generated.QueryProfileResolver { return &queryProfileResolver{r} }
 
+type mutationProfileResolver struct{ *Resolver }
 type queryProfileResolver struct{ *Resolver }

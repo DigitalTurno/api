@@ -15,3 +15,9 @@ type Profile struct {
 	// Relación con el modelo User
 	User User `gorm:"foreignKey:UserID;references:ID"` // Relacionar con el modelo User
 }
+
+type ProfileInput struct {
+	Firstname *string `json:"firstname" validate:"max=50"`
+	Lastname  *string `json:"lastname" validate:"max=50"`
+	Email     string  `json:"email" validate:"required,email"`
+}

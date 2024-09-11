@@ -20,6 +20,11 @@ func (r *mutationResolver) Auth(ctx context.Context) (*model.MutationAuth, error
 	return &model.MutationAuth{}, nil
 }
 
+// Profile is the resolver for the profile field.
+func (r *mutationResolver) Profile(ctx context.Context) (*model.MutationProfile, error) {
+	return &model.MutationProfile{}, nil
+}
+
 // User is the resolver for the user field.
 func (r *queryResolver) User(ctx context.Context) (*model.QueryUser, error) {
 	return &model.QueryUser{}, nil

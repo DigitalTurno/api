@@ -34,6 +34,8 @@ type Mutation {
    user: MutationUser! @goField(forceResolver: true)
     """ Mutation type allows fetching auth data. """
    auth: MutationAuth! @goField(forceResolver: true)
+    """ Mutation type allows fetching data about users profile. """
+    profile: MutationProfile! @goField(forceResolver: true)
 }
 
 

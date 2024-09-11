@@ -41,6 +41,7 @@ type Config struct {
 type ResolverRoot interface {
 	Mutation() MutationResolver
 	MutationAuth() MutationAuthResolver
+	MutationProfile() MutationProfileResolver
 	MutationUser() MutationUserResolver
 	Query() QueryResolver
 	QueryAuth() QueryAuthResolver
@@ -55,12 +56,18 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Mutation struct {
-		Auth func(childComplexity int) int
-		User func(childComplexity int) int
+		Auth    func(childComplexity int) int
+		Profile func(childComplexity int) int
+		User    func(childComplexity int) int
 	}
 
 	MutationAuth struct {
 		LoginUser func(childComplexity int, input model.LoginUser) int
+	}
+
+	MutationProfile struct {
+		CreateProfileUser func(childComplexity int, userID string, input model.ProfileInput) int
+		UpdateProfileUser func(childComplexity int, userID string, input model.ProfileInput) int
 	}
 
 	MutationUser struct {
@@ -90,7 +97,7 @@ type ComplexityRoot struct {
 	}
 
 	QueryProfile struct {
-		GetProfileUserByID func(childComplexity int, userID int) int
+		GetProfileUserByID func(childComplexity int, userID string) int
 	}
 
 	QueryUser struct {
@@ -124,9 +131,14 @@ type ComplexityRoot struct {
 type MutationResolver interface {
 	User(ctx context.Context) (*model.MutationUser, error)
 	Auth(ctx context.Context) (*model.MutationAuth, error)
+	Profile(ctx context.Context) (*model.MutationProfile, error)
 }
 type MutationAuthResolver interface {
 	LoginUser(ctx context.Context, obj *model.MutationAuth, input model.LoginUser) (*model.Token, error)
+}
+type MutationProfileResolver interface {
+	CreateProfileUser(ctx context.Context, obj *model.MutationProfile, userID string, input model.ProfileInput) (*model.Profile, error)
+	UpdateProfileUser(ctx context.Context, obj *model.MutationProfile, userID string, input model.ProfileInput) (*model.Profile, error)
 }
 type MutationUserResolver interface {
 	CreateUser(ctx context.Context, obj *model.MutationUser, input *model.UserInput) (*model.User, error)
@@ -142,7 +154,7 @@ type QueryAuthResolver interface {
 	UserCurrent(ctx context.Context, obj *model.QueryAuth) (*model.UserPayload, error)
 }
 type QueryProfileResolver interface {
-	GetProfileUserByID(ctx context.Context, obj *model.QueryProfile, userID int) (*model.Profile, error)
+	GetProfileUserByID(ctx context.Context, obj *model.QueryProfile, userID string) (*model.Profile, error)
 }
 type QueryUserResolver interface {
 	Users(ctx context.Context, obj *model.QueryUser) ([]*model.User, error)
@@ -175,6 +187,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.Auth(childComplexity), true
 
+	case "Mutation.profile":
+		if e.complexity.Mutation.Profile == nil {
+			break
+		}
+
+		return e.complexity.Mutation.Profile(childComplexity), true
+
 	case "Mutation.user":
 		if e.complexity.Mutation.User == nil {
 			break
@@ -193,6 +212,30 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.MutationAuth.LoginUser(childComplexity, args["input"].(model.LoginUser)), true
+
+	case "MutationProfile.createProfileUser":
+		if e.complexity.MutationProfile.CreateProfileUser == nil {
+			break
+		}
+
+		args, err := ec.field_MutationProfile_createProfileUser_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.MutationProfile.CreateProfileUser(childComplexity, args["userId"].(string), args["input"].(model.ProfileInput)), true
+
+	case "MutationProfile.updateProfileUser":
+		if e.complexity.MutationProfile.UpdateProfileUser == nil {
+			break
+		}
+
+		args, err := ec.field_MutationProfile_updateProfileUser_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.MutationProfile.UpdateProfileUser(childComplexity, args["userId"].(string), args["input"].(model.ProfileInput)), true
 
 	case "MutationUser.createUser":
 		if e.complexity.MutationUser.CreateUser == nil {
@@ -317,7 +360,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.QueryProfile.GetProfileUserByID(childComplexity, args["userId"].(int)), true
+		return e.complexity.QueryProfile.GetProfileUserByID(childComplexity, args["userId"].(string)), true
 
 	case "QueryUser.getUserById":
 		if e.complexity.QueryUser.GetUserByID == nil {
@@ -438,6 +481,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputLoginUser,
+		ec.unmarshalInputProfileInput,
 		ec.unmarshalInputUserInput,
 	)
 	first := true
@@ -574,8 +618,19 @@ type MutationAuth {
     updatedAt: Time!
 }
 
+input ProfileInput {
+    email: String!
+    firstname: String
+    lastname: String
+}
+
 type QueryProfile {
-   getProfileUserById(userId: Int!): Profile! @goField(forceResolver: true)
+   getProfileUserById(userId: ID!): Profile! @goField(forceResolver: true)
+}
+
+type MutationProfile {
+    createProfileUser(userId: ID!, input: ProfileInput!): Profile! @goField(forceResolver: true)
+    updateProfileUser(userId: ID!, input: ProfileInput!): Profile! @goField(forceResolver: true)
 }`, BuiltIn: false},
 	{Name: "../schema/gql/schema.gql", Input: `directive @goField(
   forceResolver: Boolean
@@ -613,6 +668,8 @@ type Mutation {
    user: MutationUser! @goField(forceResolver: true)
     """ Mutation type allows fetching auth data. """
    auth: MutationAuth! @goField(forceResolver: true)
+    """ Mutation type allows fetching data about users profile. """
+    profile: MutationProfile! @goField(forceResolver: true)
 }
 
 
@@ -693,6 +750,54 @@ func (ec *executionContext) field_MutationAuth_loginUser_args(ctx context.Contex
 	return args, nil
 }
 
+func (ec *executionContext) field_MutationProfile_createProfileUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["userId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["userId"] = arg0
+	var arg1 model.ProfileInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg1, err = ec.unmarshalNProfileInput2apiturnosᚋsrcᚋschemaᚋmodelᚐProfileInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_MutationProfile_updateProfileUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["userId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["userId"] = arg0
+	var arg1 model.ProfileInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg1, err = ec.unmarshalNProfileInput2apiturnosᚋsrcᚋschemaᚋmodelᚐProfileInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg1
+	return args, nil
+}
+
 func (ec *executionContext) field_MutationUser_createUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -741,10 +846,10 @@ func (ec *executionContext) field_MutationUser_updatePassword_args(ctx context.C
 func (ec *executionContext) field_QueryProfile_getProfileUserById_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 int
+	var arg0 string
 	if tmp, ok := rawArgs["userId"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -921,6 +1026,56 @@ func (ec *executionContext) fieldContext_Mutation_auth(_ context.Context, field 
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_profile(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_profile(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().Profile(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.MutationProfile)
+	fc.Result = res
+	return ec.marshalNMutationProfile2ᚖapiturnosᚋsrcᚋschemaᚋmodelᚐMutationProfile(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_profile(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "createProfileUser":
+				return ec.fieldContext_MutationProfile_createProfileUser(ctx, field)
+			case "updateProfileUser":
+				return ec.fieldContext_MutationProfile_updateProfileUser(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type MutationProfile", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _MutationAuth_loginUser(ctx context.Context, field graphql.CollectedField, obj *model.MutationAuth) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_MutationAuth_loginUser(ctx, field)
 	if err != nil {
@@ -976,6 +1131,148 @@ func (ec *executionContext) fieldContext_MutationAuth_loginUser(ctx context.Cont
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_MutationAuth_loginUser_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MutationProfile_createProfileUser(ctx context.Context, field graphql.CollectedField, obj *model.MutationProfile) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MutationProfile_createProfileUser(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.MutationProfile().CreateProfileUser(rctx, obj, fc.Args["userId"].(string), fc.Args["input"].(model.ProfileInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Profile)
+	fc.Result = res
+	return ec.marshalNProfile2ᚖapiturnosᚋsrcᚋschemaᚋmodelᚐProfile(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MutationProfile_createProfileUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MutationProfile",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Profile_id(ctx, field)
+			case "userId":
+				return ec.fieldContext_Profile_userId(ctx, field)
+			case "email":
+				return ec.fieldContext_Profile_email(ctx, field)
+			case "firstname":
+				return ec.fieldContext_Profile_firstname(ctx, field)
+			case "lastname":
+				return ec.fieldContext_Profile_lastname(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Profile_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Profile_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Profile", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_MutationProfile_createProfileUser_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MutationProfile_updateProfileUser(ctx context.Context, field graphql.CollectedField, obj *model.MutationProfile) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MutationProfile_updateProfileUser(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.MutationProfile().UpdateProfileUser(rctx, obj, fc.Args["userId"].(string), fc.Args["input"].(model.ProfileInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Profile)
+	fc.Result = res
+	return ec.marshalNProfile2ᚖapiturnosᚋsrcᚋschemaᚋmodelᚐProfile(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MutationProfile_updateProfileUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MutationProfile",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Profile_id(ctx, field)
+			case "userId":
+				return ec.fieldContext_Profile_userId(ctx, field)
+			case "email":
+				return ec.fieldContext_Profile_email(ctx, field)
+			case "firstname":
+				return ec.fieldContext_Profile_firstname(ctx, field)
+			case "lastname":
+				return ec.fieldContext_Profile_lastname(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Profile_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Profile_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Profile", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_MutationProfile_updateProfileUser_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -1880,7 +2177,7 @@ func (ec *executionContext) _QueryProfile_getProfileUserById(ctx context.Context
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.QueryProfile().GetProfileUserByID(rctx, obj, fc.Args["userId"].(int))
+		return ec.resolvers.QueryProfile().GetProfileUserByID(rctx, obj, fc.Args["userId"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4468,6 +4765,47 @@ func (ec *executionContext) unmarshalInputLoginUser(ctx context.Context, obj int
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputProfileInput(ctx context.Context, obj interface{}) (model.ProfileInput, error) {
+	var it model.ProfileInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"email", "firstname", "lastname"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "email":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Email = data
+		case "firstname":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("firstname"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Firstname = data
+		case "lastname":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lastname"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Lastname = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputUserInput(ctx context.Context, obj interface{}) (model.UserInput, error) {
 	var it model.UserInput
 	asMap := map[string]interface{}{}
@@ -4543,6 +4881,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "profile":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_profile(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4587,6 +4932,112 @@ func (ec *executionContext) _MutationAuth(ctx context.Context, sel ast.Selection
 					}
 				}()
 				res = ec._MutationAuth_loginUser(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var mutationProfileImplementors = []string{"MutationProfile"}
+
+func (ec *executionContext) _MutationProfile(ctx context.Context, sel ast.SelectionSet, obj *model.MutationProfile) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, mutationProfileImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("MutationProfile")
+		case "createProfileUser":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._MutationProfile_createProfileUser(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "updateProfileUser":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._MutationProfile_updateProfileUser(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -5738,21 +6189,6 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 	return res
 }
 
-func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
-	res, err := graphql.UnmarshalInt(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
-	res := graphql.MarshalInt(v)
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-	}
-	return res
-}
-
 func (ec *executionContext) unmarshalNLoginUser2apiturnosᚋsrcᚋschemaᚋmodelᚐLoginUser(ctx context.Context, v interface{}) (model.LoginUser, error) {
 	res, err := ec.unmarshalInputLoginUser(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -5770,6 +6206,20 @@ func (ec *executionContext) marshalNMutationAuth2ᚖapiturnosᚋsrcᚋschemaᚋm
 		return graphql.Null
 	}
 	return ec._MutationAuth(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNMutationProfile2apiturnosᚋsrcᚋschemaᚋmodelᚐMutationProfile(ctx context.Context, sel ast.SelectionSet, v model.MutationProfile) graphql.Marshaler {
+	return ec._MutationProfile(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNMutationProfile2ᚖapiturnosᚋsrcᚋschemaᚋmodelᚐMutationProfile(ctx context.Context, sel ast.SelectionSet, v *model.MutationProfile) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._MutationProfile(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNMutationUser2apiturnosᚋsrcᚋschemaᚋmodelᚐMutationUser(ctx context.Context, sel ast.SelectionSet, v model.MutationUser) graphql.Marshaler {
@@ -5798,6 +6248,11 @@ func (ec *executionContext) marshalNProfile2ᚖapiturnosᚋsrcᚋschemaᚋmodel�
 		return graphql.Null
 	}
 	return ec._Profile(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNProfileInput2apiturnosᚋsrcᚋschemaᚋmodelᚐProfileInput(ctx context.Context, v interface{}) (model.ProfileInput, error) {
+	res, err := ec.unmarshalInputProfileInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNQueryAuth2apiturnosᚋsrcᚋschemaᚋmodelᚐQueryAuth(ctx context.Context, sel ast.SelectionSet, v model.QueryAuth) graphql.Marshaler {

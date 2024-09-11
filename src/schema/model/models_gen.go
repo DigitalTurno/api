@@ -10,6 +10,11 @@ type MutationAuth struct {
 	LoginUser *Token `json:"loginUser"`
 }
 
+type MutationProfile struct {
+	CreateProfileUser *Profile `json:"createProfileUser"`
+	UpdateProfileUser *Profile `json:"updateProfileUser"`
+}
+
 type MutationUser struct {
 	CreateUser     *User `json:"createUser"`
 	UpdatePassword *User `json:"updatePassword"`

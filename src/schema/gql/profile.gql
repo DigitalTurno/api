@@ -8,6 +8,17 @@ type Profile {
     updatedAt: Time!
 }
 
+input ProfileInput {
+    email: String!
+    firstname: String
+    lastname: String
+}
+
 type QueryProfile {
-   getProfileUserById(userId: Int!): Profile! @goField(forceResolver: true)
+   getProfileUserById(userId: ID!): Profile! @goField(forceResolver: true)
+}
+
+type MutationProfile {
+    createProfileUser(userId: ID!, input: ProfileInput!): Profile! @goField(forceResolver: true)
+    updateProfileUser(userId: ID!, input: ProfileInput!): Profile! @goField(forceResolver: true)
 }
