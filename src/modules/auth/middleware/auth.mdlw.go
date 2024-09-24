@@ -30,13 +30,17 @@ func (am *AuthMiddleware) Auth(next http.Handler) http.Handler {
 
 		token := extractToken(authHeader)
 		if token == "" {
+
 			next.ServeHTTP(w, r)
 			return
 		}
 
 		claims, err := am.authService.JwtValidate(context.Background(), token, constants.TypeToken("TOKEN"))
 		if err != nil || !claims.Valid {
-			if refreshToken != "" {
+			if refreshToken == "" {
+				errorResponse(w, err)
+				return
+			} else {
 				token = extractToken(refreshToken)
 				refreshClaims, err := am.authService.JwtValidate(context.Background(), token, constants.TypeToken("REFRESH"))
 
@@ -60,9 +64,6 @@ func (am *AuthMiddleware) Auth(next http.Handler) http.Handler {
 				errorResponse(w, fmt.Errorf("Update token JWT"))
 				return
 
-			} else {
-				errorResponse(w, err)
-				return
 			}
 			// Construir la estructura del error en formato JSON
 		}

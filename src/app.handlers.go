@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"net/http"
+	"time"
 
 	"apiturnos/src/generated"
 	"apiturnos/src/schema/directives"
@@ -13,6 +15,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
+	"github.com/gorilla/websocket"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
@@ -22,7 +25,22 @@ func PlaygroundHandler() *handler.Server {
 	c := generated.Config{Resolvers: res}
 	c.Directives.Auth = directives.Auth
 	c.Directives.HasRole = directives.HasRole
-	srv := handler.NewDefaultServer(generated.NewExecutableSchema(c))
+
+	srv := handler.New(generated.NewExecutableSchema(c))
+	srv.AddTransport(transport.Options{})
+	srv.AddTransport(transport.GET{})
+	srv.AddTransport(transport.POST{})
+	srv.AddTransport(transport.MultipartForm{})
+	srv.AddTransport(transport.Websocket{
+		KeepAlivePingInterval: 10 * time.Second,
+		Upgrader: websocket.Upgrader{
+			CheckOrigin: func(r *http.Request) bool {
+				// Puedes agregar lógica para permitir orígenes específicos
+				return true // Permitir todos los orígenes para desarrollo
+			},
+		},
+	})
+
 	srv.SetErrorPresenter(func(ctx context.Context, e error) *gqlerror.Error {
 		err := graphql.DefaultErrorPresenter(ctx, e)
 		var myErr *gqlerror.Error
@@ -54,6 +72,6 @@ func PlaygroundHandler() *handler.Server {
 		}
 		return res
 	})
-	srv.AddTransport(transport.Websocket{})
+	// Soporte para consultas POST estándar
 	return srv
 }

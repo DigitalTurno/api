@@ -39,3 +39,6 @@ type Mutation {
 }
 
 
+type Subscription {
+   onCreateUser: User!
+}

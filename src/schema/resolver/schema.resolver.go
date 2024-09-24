@@ -7,6 +7,7 @@ package resolver
 import (
 	"apiturnos/src/generated"
 	"apiturnos/src/schema/model"
+	"apiturnos/src/utils"
 	"context"
 )
 
@@ -40,11 +41,40 @@ func (r *queryResolver) Auth(ctx context.Context) (*model.QueryAuth, error) {
 	return &model.QueryAuth{}, nil
 }
 
+// OnCreateUser is the resolver for the onCreateUser field.
+func (r *subscriptionResolver) OnCreateUser(ctx context.Context) (<-chan *model.User, error) {
+	// Crear un canal para los suscriptores
+	userChannel := make(chan *model.User)
+
+	// ID único para cada suscripción
+	id := utils.RandString(8)
+
+	go func() {
+		// Cuando el contexto se cancele, eliminar el observador y cerrar el canal
+		<-ctx.Done()
+		r.mu.Lock()
+		delete(r.subsUser.UserObserver, id)
+		r.mu.Unlock()
+		close(userChannel)
+	}()
+
+	// Guardar el observador en el mapa de observadores
+	r.mu.Lock()
+	r.subsUser.UserObserver[id] = userChannel
+	r.mu.Unlock()
+
+	return userChannel, nil
+}
+
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
 
 // Query returns generated.QueryResolver implementation.
 func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
+// Subscription returns generated.SubscriptionResolver implementation.
+func (r *Resolver) Subscription() generated.SubscriptionResolver { return &subscriptionResolver{r} }
+
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
+type subscriptionResolver struct{ *Resolver }

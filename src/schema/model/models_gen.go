@@ -40,3 +40,6 @@ type QueryUser struct {
 	Users       []*User `json:"users,omitempty"`
 	GetUserByID *User   `json:"getUserById"`
 }
+
+type Subscription struct {
+}

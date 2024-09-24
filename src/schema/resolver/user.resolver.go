@@ -13,7 +13,19 @@ import (
 
 // CreateUser is the resolver for the createUser field.
 func (r *mutationUserResolver) CreateUser(ctx context.Context, obj *model.MutationUser, input *model.UserInput) (*model.User, error) {
-	return r.userService.CreateUser(input)
+	user, err := r.userService.CreateUser(input)
+
+	if err != nil {
+		return nil, err
+	}
+	r.subsUser.UserCreate = user
+	r.mu.Lock()
+
+	for _, observer := range r.subsUser.UserObserver {
+		observer <- user
+	}
+	r.mu.Unlock()
+	return user, err
 }
 
 // UpdatePassword is the resolver for the updatePassword field.
